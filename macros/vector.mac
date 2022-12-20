@@ -1,0 +1,160 @@
+vec Macro name, ofs
+	name = ofs
+	sub esp, 12
+ENDM
+
+vecReg1 Macro ofs
+	vec vax, ofs
+ENDM
+
+vecReg2 Macro ofs
+	vec vax, ofs
+	vec vbx, ofs+12
+ENDM
+
+vecReg3 Macro ofs
+	vec vax, ofs
+	vec vbx, ofs+12
+	vec vcx, ofs+24
+ENDM
+
+vecReg4 Macro ofs
+	vec vax, ofs
+	vec vbx, ofs+12
+	vec vcx, ofs+24
+	vec vdx, ofs+36
+ENDM
+
+_printVec Macro v
+	printC '['
+	_printFloat [v]
+	printSep
+	_printFloat [v+4]
+	printSep
+	_printFloat [v+8]
+	printC ']'
+	printEndl
+ENDM
+
+printVec Macro v
+	_printVec [ebp+v]
+ENDM
+
+_vSet Macro v, px, py, pz
+	_ffmovi [v], px
+	_ffmovi [v+4], py
+	_ffmovi [v+8], pz
+ENDM
+
+vSet Macro v, px, py, pz
+	_vSet ebp+v, px, py, pz
+ENDM
+
+_vAdd Macro v0, v1, v
+	_ffadd [v0], [v1], [v]
+	_ffadd [v0+4], [v1+4], [v+4]
+	_ffadd [v0+8], [v1+8], [v+8]
+ENDM
+
+vAdd Macro v0, v1, v
+	_vAdd ebp+v0, ebp+v1, ebp+v
+ENDM
+
+_vSub Macro v0, v1, v
+	_ffsub [v0], [v1], [v]
+	_ffsub [v0+4], [v1+4], [v+4]
+	_ffsub [v0+8], [v1+8], [v+8]
+ENDM
+
+vSub Macro v0, v1, v
+	_vSub ebp+v0, ebp+v1, ebp+v
+ENDM
+
+_vMul Macro v0, v1, v
+	_ffmul [v0], [v1], [v]
+	_ffmul [v0+4], [v1+4], [v+4]
+	_ffmul [v0+8], [v1+8], [v+8]
+ENDM
+
+vMul Macro v0, v1, v
+	_vMul ebp+v0, ebp+v1, ebp+v
+ENDM
+
+_vDot Macro v0, v1, r
+	_vMul v0, v1, _vax
+	_ffz r
+	_ffadd [_vax], r, r
+	_ffadd [_vax+4], r, r
+	_ffadd [_vax+8], r, r
+ENDM
+
+vDot Macro v0, v1, r
+	_vDot ebp+v0, ebp+v1, [ebp+r]
+ENDM
+
+_vAddf Macro v0, x, v
+	_ffadd [v0], x, [v]
+	_ffadd [v0+4], x, [v+4]
+	_ffadd [v0+8], x, [v+8]
+ENDM
+
+vAddf Macro v0, x, v
+	_vAddf ebp+v0, [ebp+x], ebp+v
+ENDM
+
+_vSubf Macro v0, x, v
+	_ffsub [v0], x, [v]
+	_ffsub [v0+4], x, [v+4]
+	_ffsub [v0+8], x, [v+8]
+ENDM
+
+vSubf Macro v0, x, v
+	_vSubf ebp+v0, [ebp+x], ebp+v
+ENDM
+
+_vMulf Macro v0, x, v
+	_ffmul [v0], x, [v]
+	_ffmul [v0+4], x, [v+4]
+	_ffmul [v0+8], x, [v+8]
+ENDM
+
+vMulf Macro v0, x, v
+	_vMulf ebp+v0, [ebp+x], ebp+v
+ENDM
+
+_vMov Macro v1, v0
+	_ffmov [v1], [v0]
+	_ffmov [v1+4], [v0+4]
+	_ffmov [v1+8], [v0+8]
+ENDM
+
+vMov Macro v1, v0
+	_vMov ebp+v1, ebp+v0
+ENDM
+
+_vCross Macro v0, v1, v
+	_ffmul [v0+4], [v1+8], _fax
+	_ffmul [v1+4], [v0+8], _fbx
+	_ffsub _fax, _fbx, [v]
+
+	_ffmul [v0], [v1+8], _fax
+	_ffmul [v1], [v0+8], _fbx
+	_ffsub _fbx, _fax, [v+4]
+
+	_ffmul [v0], [v1+4], _fax
+	_ffmul [v1], [v0+4], _fbx
+	_ffsub _fax, _fbx, [v+8]
+ENDM
+
+vCross Macro v0, v1, v
+	_vCross ebp+v0, ebp+v1, ebp+v
+ENDM
+
+_vLen Macro v, r
+	_vDot v, v, r
+	_ffsqrt r, r
+ENDM
+
+vLen Macro v, r
+	_vLen ebp+v, [ebp+r]
+ENDM

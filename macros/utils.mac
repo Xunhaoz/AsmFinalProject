@@ -1,0 +1,217 @@
+True EQU 1
+False EQU 0
+
+; Push & Pop
+pushEBP Macro
+	push ebp
+	mov ebp, esp
+ENDM
+
+popEBP Macro
+	pop ebp
+ENDM
+
+pushInt Macro x
+	mov eax, x
+	push eax
+ENDM
+
+pushVec Macro v
+	pushInt [v+8]
+	pushInt [v+4]
+	pushInt [v+0]
+ENDM
+
+pushFace Macro f
+	pushVec f+24
+	pushVec f+12
+	pushVec f+00
+ENDM
+
+; Basic print
+printC Macro x
+	mov al, x
+	sub esp, 512
+	call writeChar
+	add esp, 512
+ENDM
+
+printSep Macro
+	printC ','
+	printC ' '
+ENDM
+
+printEndl Macro
+	printC 10
+ENDM
+
+; Loop
+;;forRange Macro i, a, b, name, ofs
+;;	int32 i, a, ofs
+;;	isubi i, 1, i
+;;	name:
+;;	inc DWORD PTR [ebp+i]
+;;	icmp i, b
+;;	jnb end&name
+;;ENDM
+;;
+;;forRangei Macro i, a, b, name, ofs
+;;	int32 i, a, ofs
+;;	isubi i, 1, i
+;;	name:
+;;	inc DWORD PTR [ebp+i]
+;;	icmpi i, b
+;;	jnb end&name
+;;ENDM
+;;
+;;forRangeii Macro i, a, b, name, ofs
+;;	int32i i, a, ofs
+;;	isubi i, 1, i
+;;	name:
+;;	inc DWORD PTR [ebp+i]
+;;	icmpi i, b
+;;	jnb end&name
+;;ENDM
+;;
+;;endForRange Macro name, ofs
+;;	add esp, ofs
+;;	jmp name
+;;	end&name:
+;;	add esp, 4
+;;ENDM
+
+; Pointer
+
+;; move SIZE DW from address ebx to address edx
+mmov Macro size
+	mov ecx, size
+	@@:
+		iimov [edx], [ebx]
+		add ebx, 4
+		add edx, 4
+	loop @B
+ENDM
+
+;; move SIZE DW from y to address x
+vpmov Macro x, y, size
+	IF size GT 1
+		lea ebx, y
+		mov edx, x
+		mmov size
+	ELSE
+	 	mov ebx, x
+		iimov [ebx], y
+	ENDIF
+ENDM
+
+;; move SIZE DW from address y to x
+pvmov Macro x, y, size
+	IF size GT 1
+		mov ebx, y
+		lea edx, x
+		mmov size
+	ELSE
+	 	mov ebx, y
+		iimov x, [ebx]
+	ENDIF
+ENDM
+
+;; move SIZE DW from y to x
+vvmov Macro x, y, size
+	IF size GT 1
+		lea ebx, y
+		lea edx, x
+		mmov size
+	ELSE
+		iimov x, y
+	ENDIF
+ENDM
+
+;; move SIZE DW address from y to address x
+ppmov Macro x, y, size
+	mov ebx, y
+	mov edx, x
+	mmov size
+ENDM
+
+;; move address of y to x
+plea Macro x, y
+	lea eax,  y
+	mov x, eax
+ENDM
+
+pget Macro x, y
+	mov esi, y
+	iimov x, [esi]
+ENDM
+
+;; pushp Macro param, ofs, size, is_ptr
+;; 	lb = 0
+;; 	rb = 0
+;; 	op = 0
+;; 	cnt = 0
+;; 	ref = 0
+;; 
+;; 	FORC char, <param>
+;; 		cnt = cnt + 1
+;; 		IF '&char' eq '['
+;; 			lb = cnt
+;; 		ELSEIF '&char' eq ']'
+;; 			rb = cnt
+;; 		ELSEIF '&char' eq '+'
+;; 			op = cnt
+;; 		ELSEIF '&char' eq '-'
+;; 			op = cnt
+;; 		ELSEIF '&char' eq '*'
+;; 			ref = 1
+;; 		ENDIF
+;; 	ENDM
+;; 
+;; 	IF op
+;; 		s SUBSTR <param>, lb+1, op-lb-1
+;; 		o SUBSTR <param>, op, rb-op
+;; 	ELSE
+;; 		s SUBSTR <param>, lb+1, rb-lb-1
+;; 		o = 0
+;; 	ENDIF
+;; 	
+;; 	IF ref
+;; 		IF is_ptr
+;; 			pofmov s, [esp-ofs], o, size, p2p
+;; 		ELSE
+;; 			pofmov s, [esp-ofs], o, size, p2v
+;; 		ENDIF
+;; 	ELSE
+;; 		IF is_ptr
+;; 			pofmov s, [esp-ofs], o, size, v2p
+;; 		ELSE
+;; 			pofmov s, [esp-ofs], o, size, v2v
+;; 		ENDIF
+;; 	ENDIF
+;; ENDM
+
+
+;; push_param Macro param, off
+;; 	v2p = 0
+;; 	p2v = 0
+;; 	IRPC char, <param>
+;; 		IF ('&char' eq '&')
+;; 			v2p = 1
+;; 		ELSEIF ('&char' eq '*')
+;; 			p2v = 1
+;; 		ENDIF
+;; 		exitm
+;; 	ENDM
+;; 	IF v2p
+;; 		;; printInt 0
+;; 		p SUBSTR <param>, 2
+;; 		plea [esp+off], p
+;; 	ELSEIF p2v
+;; 		;; printInt 1
+;; 		p SUBSTR <param>, 2
+;; 		pget [esp+off], p
+;; 	ELSE
+;; 		;; printInt 2
+;; 		iimov [esp+off], param
+;; 	ENDIF
+;; ENDM

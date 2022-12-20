@@ -1,0 +1,131 @@
+printFloat Macro x
+	ffld x
+	sub esp, 512
+	call writeFloat
+	add esp, 512
+	ffree st(0)
+	printC ' '
+ENDM
+
+printFloatE Macro x
+	printFloat x
+	printEndl
+ENDM
+
+ffld Macro x
+	mov ebx, x
+	lea eax, fax
+	mov DWORD PTR [eax], ebx
+	fld DWORD PTR [eax]
+ENDM
+
+ffild Macro x
+	mov ebx, x
+	lea eax, fax
+	mov DWORD PTR [eax], ebx
+	fild DWORD PTR [eax]
+ENDM
+
+ffz Macro x
+	fldz
+	fstp x
+ENDM
+
+ffmov Macro x, y
+	ffld DWORD PTR y
+	fstp DWORD PTR x
+ENDM
+
+ffneg Macro x
+	fld x
+	fchs
+	fstp x
+ENDM
+
+ffadd Macro x, y, r
+	ffld x
+	ffld y
+	fadd
+	fstp r
+ENDM
+
+ffsub Macro x, y, r
+	ffld x
+	ffld y
+	fsub
+	fstp r
+ENDM
+
+ffmul Macro x, y, r
+	ffld x
+	ffld y
+	fmul
+	fstp r
+ENDM
+
+ffdiv Macro x, y, r
+	ffld x
+	ffld y
+	fdiv
+	fstp r
+ENDM
+
+ffabs Macro x, r
+	ffld x
+	fabs
+	fstp r
+ENDM
+
+ffcmp Macro x, y
+	ffld y
+	ffld x
+	fcomip st, st(1)
+	ffree st
+ENDM
+
+ffsqrt Macro x, r
+	ffld x
+	fsqrt
+	fstp r
+ENDM
+
+ffpow Macro x, y, r ;; x > 0
+	;; all log = log_2, (d) = decimal part of ylogx, (i) = integer part of ylogx
+						;;			ST(0)			ST(1)			ST(2)			EX:		ST(0)		ST(1)		ST(2)
+	ffld		y		;;			y														1.5
+	ffld		x		;;			x				y										8
+    fyl2x				;;			ylogx													4.5
+	fld1				;;			1				ylogx									1			4.5
+    fld		st(1)		;;			ylogx			1				ylogx					4.5			1			4.5
+    fprem				;;			ylogx (d)		1				ylogx					0.5	
+    f2xm1				;;			2^(ylogx)-1 (d)	1				ylogx					2^0.5-1		1			4.5
+    faddp	st(1), st	;;			x^y (d)			ylogx									2^0.5
+									
+						;;			ST(0)							ST(1)					ST(0)					ST(1)
+    fscale				;;			x^y (d) * x^y (i) = x^y			ylogx					2^0.5 * 2^4 = 2^4.5		4.5
+    ffree	st(1)		;;			x^y														2^4.5 = 8^1.5
+	fstp		r
+ENDM
+
+; ffset Macro x, mant, exp
+; 	ffpow 10, exp, x
+; 	ffmul mant, x, x
+; ENDM
+
+ffset Macro x, y
+	ffld y
+	fstp x
+ENDM
+
+ifmov Macro x, y
+	ffild DWORD PTR y
+	fstp DWORD PTR x
+ENDM
+
+fimov Macro x, y
+	fstcw fcw
+	or fcw, 0000110000000000b
+	fldcw fcw
+	ffld DWORD PTR y
+	fistp DWORD PTR x
+ENDM
