@@ -63,23 +63,24 @@ endc
 class Engine:
 	def init():
 		float self.update_rate = 16
-		float self.dt 
+		float self.dt
 		int self.last_t = get_time()
 	endf
 
 	def step():
-        mm.reset()
-        update()
-        keyboard.update()
-		camera.render()
         float t = get_time()
         while t - self.last_t < self.update_rate:
             t = get_time()
         endl
-        self.dt = (t - self.last_t) / 1000
+        self.dt = (t - self.last_t) / 1000.0
         ; printFloat self.dt
         self.last_t = t 
-		display()
+
+        mm.reset()
+        update()
+        keyboard.update()
+		camera.render()
+        display()
 	endf
 endc
 

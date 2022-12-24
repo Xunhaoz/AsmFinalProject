@@ -45,6 +45,9 @@ class DataType:
         self.in_asm = prefix is not None
         self.size = size
 
+    def __eq__(self, other):
+        return self.name == other.name
+
     def compute_bytes(self):
         if self.size is None:
             bytes = 0
@@ -649,7 +652,7 @@ def process_logic_and_label(op_lev, _logic, cd_label):
     return logic, cd_label
 
 
-def sep_exp(s, dtype_name, cd_label, _logic, log=True):
+def sep_exp(s, dtype_name, cd_label, _logic, log=False):
 
     _xs, _ops, op_lev, op_levs = preprocess_unit_and_op(s)
     if dtype_name == 'bool' and op_lev not in biOpLevel:
@@ -690,7 +693,9 @@ def convert_type(x, target_dtype_name):
         return x
 
 
-def build_exp(s, target_dtype_name, _logic=None, reg=None, cd_label=None, log=False):
+def build_exp(s, target_dtype_name, _logic=None, dest=None, cd_label=None, log=True):
+    if dest:
+        debug(dest)
     is_bool = target_dtype_name in ['bool', 'if']
     is_if = target_dtype_name == 'if'
 
@@ -739,7 +744,7 @@ def build_exp(s, target_dtype_name, _logic=None, reg=None, cd_label=None, log=Fa
                 add_ofs()
                 f_n, f_v = content
                 f_n = reg_s + '.' + f_n if reg_s else f_n
-                reg_s = _func_call(f_n, f_v, 'None').name
+                reg_s = _func_call(f_n, f_v, 'None')[0]
             elif etype == 'v':
                 if i == 0:
                     reg_s = replace_reserved_words(content)
@@ -771,7 +776,8 @@ def build_exp(s, target_dtype_name, _logic=None, reg=None, cd_label=None, log=Fa
                 x = Var(float2bits(content), 'float', imm=True)
             elif etype == 'func':
                 f_n, f_v = content
-                x = _func_call(f_n, f_v, 'None')
+                f_out = dest.name if dest and dest.dtype.name == target_dtype_name else 'None'
+                x = get_var(_func_call(f_n, f_v, f_out)[0])
             elif etype == 'v':
                 x = get_var(content)
             elif etype == 'p':
@@ -822,7 +828,7 @@ def build_exp(s, target_dtype_name, _logic=None, reg=None, cd_label=None, log=Fa
                             code_stack.add_line(f'{x.dtype.prefix}{opMap[op]} {_reg}, {x}, {reg}')
                         else:
                             rm.remove(reg, x)
-                            reg = _func_call(f'{_reg}.{opMap[op]}', x.name, 'None')
+                            reg = get_var(_func_call(f'{_reg}.{opMap[op]}', x.name, 'None')[0])
 
     if op_lev == orOpLevel:
         if _logic != 'or':
@@ -889,7 +895,8 @@ def build_and_transfer(source, dest, transfer_type='auto', log=False):
         rm.save()
         dtype = get_dtype(d) if isinstance(d, str) else d.dtype
         dv = build_exp(d, dtype.name) if isinstance(d, str) else d
-        sv = build_exp(s, dtype.name) if isinstance(s, str) else s
+        dest = dv if dv.name in global_vars.keys() else None
+        sv = build_exp(s, dtype.name, dest=dest) if isinstance(s, str) else s
 
         if sv.name == dv.name:
             continue
@@ -1030,6 +1037,11 @@ def get_var(s):
     else:
         name_list = s
     r_name = replace_reserved_words(name_list[0])
+
+    for i in range(len(name_list)):
+        p = name_list[i].find('[')
+        if p >= 0:
+            name_list[i] = name_list[i][:p]
 
     if r_name in curr_vars().keys():
         r_var = curr_vars()[r_name]
@@ -1550,8 +1562,7 @@ def _func_call(fn, in_v, out_v='', log=False):
     build_and_transfer(in_v, f_in_v)
     if out_v and out_v[0]:
         if out_v[0] == 'None':
-            reg = rm.get_reg(f.out_v[0].dtype.name)
-            out_v = [reg]
+            out_v = [rm.get_reg(f.out_v[0].dtype.name).name]
 
     if fn == 'len':
         code_stack.add_line(f'mov {out_v[0]}, {curr_vars()[f_in_v[0]].shape[0]}')
@@ -1559,11 +1570,11 @@ def _func_call(fn, in_v, out_v='', log=False):
         build_and_transfer(out_v, f_out_v)
         code_stack.add_line(f'call {f.name}')
 
-    return reg
+    return out_v
 
 
 def func_call(line, log=False):
-    reg_dict = match_all(reg_ss(reg_get('fn', r'[\w\.]+')) + r'\(' + reg_get('fv', '.*') + r'\)\s*', line)
+    reg_dict = match_all(reg_ss(reg_get('fn', r'[\w\[\]\.]+')) + r'\(' + reg_get('fv', '.*') + r'\)\s*', line)
     if reg_dict is not None and get_func_name(reg_dict['fn']):
         if log:
             debug('func_call', reg_dict['fn'], reg_dict['fv'])
@@ -1689,7 +1700,7 @@ def update_segment(line):
         code_stack.add_line(f'.{code_stack.segment}')
 
         if STATUS == 'COMPILE' and code_stack.segment == 'data':
-            code_stack.add_line('fax DWORD ?')
+            code_stack.add_line('xax DWORD ?')
             code_stack.add_line('fcw WORD ?')
         return True
     return False

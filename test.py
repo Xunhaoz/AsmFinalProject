@@ -49,3 +49,7 @@ import struct
 def float2bits(s):
     s = struct.pack('>f', float(s))
     return str(struct.unpack('>i', s)[0])
+
+
+
+

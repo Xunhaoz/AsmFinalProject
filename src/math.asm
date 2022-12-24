@@ -192,6 +192,14 @@ class Vec3:
     endf          
 endc
 
+def Vec3_zero() -> (Vec3):
+    return Vec3(0, 0, 0)
+endf
+
+def Vec3_one() -> (Vec3):
+    return Vec3(1, 1, 1)
+endf
+
 class Matrix3:
     ; u, v, w are rows
     def init(Vec3 u, Vec3 v, Vec3 w):
@@ -209,11 +217,11 @@ class Matrix3:
     endf
 
     def mul(Matrix3 other) -> (Matrix3):
-        other = other.transpose()
+        Matrix3 ot = other.transpose()
         return Matrix3(\
-            Vec3(Vec3.dot(self.u, other.u), Vec3.dot(self.u, other.v), Vec3.dot(self.u, other.w)),\
-            Vec3(Vec3.dot(self.v, other.u), Vec3.dot(self.v, other.v), Vec3.dot(self.v, other.w)),\
-            Vec3(Vec3.dot(self.w, other.u), Vec3.dot(self.w, other.v), Vec3.dot(self.w, other.w))\
+            Vec3(Vec3.dot(self.u, ot.u), Vec3.dot(self.u, ot.v), Vec3.dot(self.u, ot.w)),\
+            Vec3(Vec3.dot(self.v, ot.u), Vec3.dot(self.v, ot.v), Vec3.dot(self.v, ot.w)),\
+            Vec3(Vec3.dot(self.w, ot.u), Vec3.dot(self.w, ot.v), Vec3.dot(self.w, ot.w))\
         )
     endf
 
@@ -245,6 +253,10 @@ class Matrix3:
         printEndl
     endf
 endc
+
+def Matrix3_identity() -> (Matrix3):
+    return Matrix3(Vec3(1, 0, 0), Vec3(0, 1, 0), Vec3(0, 0, 1))
+endf
 
 class AngleAxis:
     def init(Vec3 axis, float angle):

@@ -26,7 +26,7 @@ center = (maxp + minp) / 2
 
 for i in range(len(your_mesh.v0)):
     pointList = [your_mesh.v0[i].tobytes(), your_mesh.v1[i].tobytes(), your_mesh.v2[i].tobytes()]
-    print(f"\t\tself.add_triangle(Triangle({pointMap[pointList[0]]}, {pointMap[pointList[1]]}, {pointMap[pointList[2]]}))")
+    print(f"\t\tself.add_triangle(Triangle({pointMap[pointList[2]]}, {pointMap[pointList[1]]}, {pointMap[pointList[0]]}))")
 
 for v in vertices:
     p = v - center

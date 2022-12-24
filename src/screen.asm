@@ -1,6 +1,6 @@
 .DATA
-const WIDTH = 480; 480
-const HEIGHT = 360; 360
+const WIDTH = 240; 480
+const HEIGHT = 180; 360
 int color_buffer[HEIGHT][WIDTH]
 float deep_buffer[HEIGHT][WIDTH]
 int charLevel[64]

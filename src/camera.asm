@@ -43,15 +43,15 @@ class Camera:
         float t1, t2, t3
         Vec3 gp1, gp2, gp3
 
-        Vec3 v3 = vertices[tri.p0]
+        Vec3 v1 = vertices[tri.p0]
         Vec3 v2 = vertices[tri.p1]
-        Vec3 v1 = vertices[tri.p2]
+        Vec3 v3 = vertices[tri.p2]
 
         t1, gp1 = rayPlaneIntersect(self.pos, v1, self.near_gp, self.inv_axis.w)
         t2, gp2 = rayPlaneIntersect(self.pos, v2, self.near_gp, self.inv_axis.w)
         t3, gp3 = rayPlaneIntersect(self.pos, v3, self.near_gp, self.inv_axis.w)
 
-        if t1 < 0 && t2 < 0 && t3 < 0: return
+        if t1 < 0 || t2 < 0 || t3 < 0: return
 
         Vec3 N = Vec3.cross(v2 - v1, v3 - v1).norm()
 

@@ -14,14 +14,14 @@ ENDM
 
 ffld Macro x
 	mov ebx, x
-	lea eax, fax
+	lea eax, xax
 	mov DWORD PTR [eax], ebx
 	fld DWORD PTR [eax]
 ENDM
 
 ffild Macro x
 	mov ebx, x
-	lea eax, fax
+	lea eax, xax
 	mov DWORD PTR [eax], ebx
 	fild DWORD PTR [eax]
 ENDM
