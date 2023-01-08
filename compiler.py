@@ -171,7 +171,7 @@ code_stack = CodeStack()
 
 
 # ---------------------------------------------- Operator ---------------------------------------------- #
-opLevel = [('.', '['), ('!',), ('*', '/', '%'), ('+', '-'), ('<<', '>>'), ('>', '<', '>=', '<='), ('==', '!='), ('&&',), ('||',)]
+opLevel = [('.', '['), ('!',), ('*', '/', '%', '**'), ('+', '-'), ('<<', '>>'), ('>', '<', '>=', '<='), ('==', '!='), ('&&',), ('||',)]
 boolOpLevel = [1, 5, 6, 7, 8]
 andOpLevel = 7
 orOpLevel = 8
@@ -206,6 +206,7 @@ opMap = {
     r'!=': 'jne',
     r'&&': 'and',
     r'||': 'or',
+    r'**': 'pow',
     r'>': 'jg',
     r'<': 'jl',
     r'!': 'not',
@@ -519,7 +520,7 @@ class RegisterManager:
 
     def remove(self, *regs):
         for reg in regs:
-            if reg.name in self.used_regs:
+            if isinstance(reg, Var) and reg.name in self.used_regs:
                 self.used_regs.remove(reg.name)
 
 
@@ -694,8 +695,6 @@ def convert_type(x, target_dtype_name):
 
 
 def build_exp(s, target_dtype_name, _logic=None, dest=None, cd_label=None, log=True):
-    if dest:
-        debug(dest)
     is_bool = target_dtype_name in ['bool', 'if']
     is_if = target_dtype_name == 'if'
 
@@ -727,8 +726,14 @@ def build_exp(s, target_dtype_name, _logic=None, dest=None, cd_label=None, log=T
             if exps:
                 reg_s += '[' + '+'.join(exps) + ']'
 
+        ofs = []
+
     x, reg, reg_s, of, ofs = None, None, '', '', []
 
+    if op_lev == 0:
+        p = s.find('[')
+        if 'reg' in s[p:]:
+            return Var(s, get_dtype(s).name, is_ptr=False, virtual=True, build_ofs=False)
 
     for i in range(0, len(xs)):
         if op_lev == 0:
@@ -935,7 +940,7 @@ global_vars = {}
 
 
 class Var:
-    def __init__(self, name, dtype, is_ptr=None, imm=False, val=None, virtual=False):
+    def __init__(self, name, dtype, is_ptr=None, imm=False, val=None, virtual=False, build_ofs=True):
         self.name = name
         self.dtype_name = dtype
         self.is_ptr = is_ptr
@@ -946,7 +951,7 @@ class Var:
         p = self.name.find('[')
         # debug('Var', self.name, i, self.name[:i], self.name[i:])
         if p != -1 and not virtual:
-            self.get_offset(self.name[p:], build=True)
+            self.get_offset(self.name[p:], build=build_ofs)
             self.name = self.name[:p]
         self.offset = None
         if self.is_ptr is None:
@@ -1036,12 +1041,13 @@ def get_var(s):
         name_list = s.split('.')
     else:
         name_list = s
-    r_name = replace_reserved_words(name_list[0])
 
     for i in range(len(name_list)):
         p = name_list[i].find('[')
         if p >= 0:
             name_list[i] = name_list[i][:p]
+
+    r_name = replace_reserved_words(name_list[0])
 
     if r_name in curr_vars().keys():
         r_var = curr_vars()[r_name]
@@ -1091,14 +1097,14 @@ def def_global_var(line):
             return True
 
 
-def def_var(name, dtype_name):
+def def_var(name, dtype_name, inspect=False):
     v = Var(replace_reserved_words(name), dtype_name, is_ptr=False)
 
     if v.dtype is None:
         print_red(f'unsupported dtype {dtype_name}, line {line_n}')
         raise
     else:
-        if v.name in curr_vars().keys():
+        if inspect and v.name in curr_vars().keys():
             print_red(f'redefined variable "{name}", line {line_n}')
             raise
         else:
@@ -1229,6 +1235,7 @@ class Loop:
         self.type = type
         self.begin_label = get_label()
         self.end_label = get_label()
+        self.continue_label = get_label() if type == 'for' else self.begin_label
         self.it = it
         self.itv = itv
         self.sn = sn
@@ -1272,7 +1279,7 @@ def for_begin(line):
             # it = rm.get_reg('int')
             # sid, eid, gap = 0, con.len, 1
         else:
-            def_var(it, 'int')
+            def_var(it, 'int', inspect=False)
             itv = None
             rvs = str_get_units_sep_by_comma(reg_dict['rvs'])
             rvs = [build_exp(rv, 'int') for rv in rvs]
@@ -1285,7 +1292,6 @@ def for_begin(line):
             else:
                 print_red(line)
                 raise
-            rm.remove(*rvs)
 
         loop = Loop('for', it, itv, sid, eid, gap)
         loop_stack.append(loop)
@@ -1301,11 +1307,13 @@ def loop_end(line):
     if match_all(r'\s*endl\s*', line) is not None:
         loop = loop_stack.pop()
         if loop.type == 'for':
+            code_stack.add_line(f'{loop.continue_label}:')
             code_stack.add_line(f'iiadd {loop.it}, {loop.step}, {loop.it}')
         if loop.itv is not None:
             pass
         code_stack.add_line(f'jmp {loop.begin_label}')
         code_stack.add_line(f'{loop.end_label}:')
+        rm.remove(loop.sn, loop.en, loop.step)
         return True
     else:
         return False
@@ -1316,7 +1324,7 @@ def loop_break_continue(line):
         code_stack.add_line(f'jmp {loop_stack[-1].end_label}')
         return True
     elif match_all(r'\s*continue\s*', line) is not None:
-        code_stack.add_line(f'jmp {loop_stack[-1].begin_label}')
+        code_stack.add_line(f'jmp {loop_stack[-1].continue_label}')
         return True
     else:
         return False
@@ -1548,9 +1556,8 @@ def _func_call(fn, in_v, out_v='', log=False):
     elif fn in func_dict.keys():
         f = func_dict[fn]
 
-    reg = None
-    in_v = str_get_units_sep_by_comma(in_v)
-    out_v = str_get_units_sep_by_comma(out_v)
+    in_v = str_get_units_sep_by_comma(in_v) if isinstance(in_v, str) else in_v
+    out_v = str_get_units_sep_by_comma(out_v) if isinstance(out_v, str) else out_v
 
     f_in_v, f_out_v = deepcopy(f.in_v), deepcopy(f.out_v)
     for v in f_in_v + f_out_v:
@@ -2227,6 +2234,8 @@ def test():
         def gg(float a):
             printFloat a
             printEndl
+            printEndl
+            ; ff(a) ; 
         endf
     
         def main:
@@ -2247,8 +2256,6 @@ def test():
             ; printInt d ; 5
             printInt e
             printFloat f
-            printEndl
-            ; ff(a) ; 
             ; gg(b) ; 
         endf
     '''
@@ -2264,24 +2271,22 @@ def test():
     '''
 
     codes_test = '''
+        def f(int a, int b, int c) -> (int):
+            return a + b + c
+        endf
+        
+        def g(int x) -> (int):
+            return x * x
+        endf
+    
         def main():
-            int x = 9
-            if x > 8 || x < 10: x = 1
-            printFloat x
+            int a = f(g(1), g(2), g(3))
+            printInt a 
         endf
     '''
 
-    head_code = '''include Irvine32.inc
-include macros/utils.mac
-include macros/int.mac
-include macros/float.mac
-include macros/vector.mac
-
+    head_code = '''
 .data
-const WIDTH = 480
-const HEIGHT = 360
-int canvas[480][360]
-
 .code
 '''
 

@@ -1028,7 +1028,7 @@
        Overriding target "ComputeMetaGenInputs" in project "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.MetaGen.targets" with target "ComputeMetaGenInputs" from project "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets".
        Overriding target "GetNativeManifest" in project "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\Microsoft.Common.CurrentVersion.targets" with target "GetNativeManifest" from project "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets".
        Overriding target "GetTargetPathWithTargetPlatformMoniker" in project "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\Microsoft.Common.CurrentVersion.targets" with target "GetTargetPathWithTargetPlatformMoniker" from project "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.Cpp.DesignTime.targets".
-Build started 2022/12/24 下午 11:52:58.
+Build started 2023/1/8 下午 04:44:13.
 Logging verbosity is set to: Detailed.     1>Project "C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\FinalProject.vcxproj" on node 2 (Rebuild target(s)).
      1>Building with tools version "Current".
        Target "EnableIntermediateOutputPathMismatchWarning" skipped, due to false condition; ('$(RestoreProjectStyle)' == 'PackageReference') was evaluated as ('' == 'PackageReference').
@@ -1052,10 +1052,10 @@ Logging verbosity is set to: Detailed.     1>Project "C:\Users\hardy\Sync\Study\
      1>Target "SetTelemetryEnvironmentVariables" in file "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.Cpp.DesignTime.targets" from project "C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\FinalProject.vcxproj" (target "Rebuild" depends on it):
        Using "SetEnv" task from assembly "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.Build.CppTasks.Common.dll".
        Task "SetEnv"
-         VSTEL_SolutionSessionID={4C2B5463-385A-4268-A7DE-7EFC7DA6CC56}
+         VSTEL_SolutionSessionID={C730F665-2BAD-4723-9FCD-BD5742BF4CE8}
        Done executing task "SetEnv".
        Task "SetEnv"
-         VSTEL_CurrentSolutionBuildID=1154899700
+         VSTEL_CurrentSolutionBuildID=2425174730
        Done executing task "SetEnv".
        Task "SetEnv"
          VSTEL_ProjectID={573d8af6-6698-4045-a4fb-2a1736e8c869}
@@ -1351,15 +1351,15 @@ Logging verbosity is set to: Detailed.     1>Project "C:\Users\hardy\Sync\Study\
        Initializing task factory "XamlTaskFactory" from assembly "Microsoft.Build.Tasks.v4.0, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a".
        Using "MASM" task from the task factory "XamlTaskFactory".
        Task "MASM"
-         cmd.exe /C "C:\Users\hardy\AppData\Local\Temp\tmp8f5beaf249b247dc8cb5a4d025094b94.cmd"
+         cmd.exe /C "C:\Users\hardy\AppData\Local\Temp\tmp337afa352fd04aa4b3391492ba49b3e5.cmd"
          ml.exe /c /nologo /Zi /Fo"Debug\main.obj" /Fl"FinalProject.lst" /I "C:\Irvine" /W3 /errorReport:prompt  /Tamain.asm
          
          C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject>ml.exe /c /nologo /Zi /Fo"Debug\main.obj" /Fl"FinalProject.lst" /I "C:\Irvine" /W3 /errorReport:prompt  /Tamain.asm 
           Assembling: main.asm
-     1>main.asm(1263): warning A6004: procedure argument or local not referenced : self
-     1>main.asm(1319): warning A6004: procedure argument or local not referenced : self
-     1>main.asm(8634): warning A6004: procedure argument or local not referenced : w
-     1>main.asm(8634): warning A6004: procedure argument or local not referenced : h
+     1>main.asm(1286): warning A6004: procedure argument or local not referenced : self
+     1>main.asm(1342): warning A6004: procedure argument or local not referenced : self
+     1>main.asm(10509): warning A6004: procedure argument or local not referenced : nw
+     1>main.asm(10509): warning A6004: procedure argument or local not referenced : nh
        Done executing task "MASM".
      1>Done building target "_MASM" in project "FinalProject.vcxproj".
        Target "_CreateCopyFileItems" skipped, due to false condition; ('@(CopyFileToFolders)' != '') was evaluated as ('' != '').
@@ -1535,10 +1535,10 @@ Logging verbosity is set to: Detailed.     1>Project "C:\Users\hardy\Sync\Study\
        Using "Link" task from assembly "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.Build.CppTasks.Common.dll".
        Task "Link"
          Environment Variables passed to tool:
-           VS_UNICODE_OUTPUT=2968
+           VS_UNICODE_OUTPUT=1124
          C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX86\x86\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.exe" /INCREMENTAL /ILK:"Debug\FinalProject.ilk" /NOLOGO /LIBPATH:C:\Irvine Irvine32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.pdb" /MAP /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.lib" /MACHINE:X86 Debug\main.obj
          Tracking command:
-         C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\Tracker.exe /a /d "C:\Program Files (x86)\MSBuild\15.0\FileTracker\FileTracker32.dll" /i "C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.tlog" /r "C:\USERS\HARDY\SYNC\STUDY\組合語言\PRACTICE\FINALPROJECT\DEBUG\MAIN.OBJ" /b MSBuildConsole_CancelEvent303816cab02f40fe8fa99d37533a62d7  /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX86\x86\link.exe"  /ERRORREPORT:PROMPT /OUT:"C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.exe" /INCREMENTAL /ILK:"Debug\FinalProject.ilk" /NOLOGO /LIBPATH:C:\Irvine Irvine32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.pdb" /MAP /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.lib" /MACHINE:X86 Debug\main.obj
+         C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\Tracker.exe /a /d "C:\Program Files (x86)\MSBuild\15.0\FileTracker\FileTracker32.dll" /i "C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.tlog" /r "C:\USERS\HARDY\SYNC\STUDY\組合語言\PRACTICE\FINALPROJECT\DEBUG\MAIN.OBJ" /b MSBuildConsole_CancelEvent7b9dd7d868354d0299cbc7c5b6264f11  /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\HostX86\x86\link.exe"  /ERRORREPORT:PROMPT /OUT:"C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.exe" /INCREMENTAL /ILK:"Debug\FinalProject.ilk" /NOLOGO /LIBPATH:C:\Irvine Irvine32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.pdb" /MAP /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.lib" /MACHINE:X86 Debug\main.obj
        Done executing task "Link".
        Task "Message"
          FinalProject.vcxproj -> C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\Debug\FinalProject.exe
@@ -1764,12 +1764,12 @@ Build succeeded.
 
        "C:\Users\hardy\Sync\Study\組合語言\practice\FinalProject\FinalProject.vcxproj" (Rebuild target) (1) ->
        (_MASM target) -> 
-         main.asm(1263): warning A6004: procedure argument or local not referenced : self
-         main.asm(1319): warning A6004: procedure argument or local not referenced : self
-         main.asm(8634): warning A6004: procedure argument or local not referenced : w
-         main.asm(8634): warning A6004: procedure argument or local not referenced : h
+         main.asm(1286): warning A6004: procedure argument or local not referenced : self
+         main.asm(1342): warning A6004: procedure argument or local not referenced : self
+         main.asm(10509): warning A6004: procedure argument or local not referenced : nw
+         main.asm(10509): warning A6004: procedure argument or local not referenced : nh
 
     4 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:02.34
+Time Elapsed 00:00:09.45

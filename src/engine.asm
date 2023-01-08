@@ -62,8 +62,9 @@ endc
 
 class Engine:
 	def init():
-		float self.update_rate = 16
+		float self.update_rate = 1
 		float self.dt
+        float self.time
 		int self.last_t = get_time()
 	endf
 
@@ -75,6 +76,7 @@ class Engine:
         self.dt = (t - self.last_t) / 1000.0
         ; printFloat self.dt
         self.last_t = t 
+        self.time = t / 1000
 
         mm.reset()
         update()

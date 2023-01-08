@@ -129,3 +129,16 @@ fimov Macro x, y
 	ffld DWORD PTR y
 	fistp DWORD PTR x
 ENDM
+
+
+ffmod Macro x, y, r
+	ffdiv x, y, r
+	fimov r, r
+	ifmov r, r
+	ffmul r, y, r
+	ffsub x, r, r
+	ffcmp r, 0
+	jnb @F
+	ffadd y, r, r
+	@@:
+ENDM

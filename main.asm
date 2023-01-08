@@ -11,20 +11,20 @@ fcw WORD ?
 INF EQU 1000000000
 n_vertices DWORD 0
 n_triangles DWORD 0
-vertices DWORD 30000 DUP(?)
-triangles DWORD 30000 DUP(?)
-WIDTH__ EQU 240
-HEIGHT EQU 180
-color_buffer DWORD 43200 DUP(?)
-deep_buffer DWORD 43200 DUP(?)
+vertices DWORD 60000 DUP(?)
+triangles DWORD 60000 DUP(?)
+WIDTH__ EQU 480
+HEIGHT EQU 360
+color_buffer DWORD 172800 DUP(?)
+deep_buffer DWORD 172800 DUP(?)
 charLevel DWORD 64 DUP(?)
 buffer DWORD 200000 DUP(?)
 mm DWORD 15 DUP(?)
-engine DWORD 3 DUP(?)
-camera DWORD 40 DUP(?)
+engine DWORD 4 DUP(?)
+camera DWORD 115 DUP(?)
 keyboard DWORD 11 DUP(?)
-player DWORD 29 DUP(?)
-terrain1 DWORD 12004 DUP(?)
+player DWORD 48 DUP(?)
+terrain DWORD 12008 DUP(?)
 
 
 .code
@@ -70,6 +70,29 @@ cos PROC USES esi edi
 	end_cos:
 	ret
 cos ENDP
+
+
+rand PROC USES esi edi
+	local x:DWORD, y:DWORD, ret_0:DWORD, ri:DWORD, mean:DWORD, reg_float_1:DWORD, reg_float_2:DWORD, reg_float_3:DWORD
+	call Random32
+	mov ri, eax
+	ffadd x, y, reg_float_1
+	ffdiv reg_float_1, 1073741824, reg_float_1
+	vvmov mean, reg_float_1, 1
+	ifmov reg_float_1, ri
+	ffadd reg_float_1, 1056964608, reg_float_2
+	ffdiv reg_float_2, 1325400064, reg_float_2
+	ffdiv reg_float_2, 1073741824, reg_float_2
+	ffsub y, x, reg_float_3
+	ffmul reg_float_2, reg_float_3, reg_float_2
+	ffadd x, y, reg_float_3
+	ffdiv reg_float_3, 1073741824, reg_float_3
+	ffadd reg_float_2, reg_float_3, reg_float_2
+	vpmov ret_0, reg_float_2, 1
+	jmp end_rand
+	end_rand:
+	ret
+rand ENDP
 
 
 min2i PROC USES esi edi
@@ -1394,41 +1417,41 @@ ModelManager__add_pyramid PROC USES esi edi
 	call ModelManager__add_vertex
 	iimov [esp-12], self
 	mov esi, pos
-	ffsub [esi+0], r, reg_float_1
-	add esp, -12
-	vvmov [esp-12], reg_float_1, 1
-	mov esi, pos
-	ffadd [esi+4], r, reg_float_1
-	vvmov [esp-16], reg_float_1, 1
-	mov esi, pos
-	vvmov [esp-20], [esi+8], 1
-	plea [esp-24], reg_Vec3_1
-	call Vec3__init
-	sub esp, -12
-	plea [esp-16], reg_Vec3_1
-	call ModelManager__add_vertex
-	iimov [esp-12], self
-	mov esi, pos
-	ffsub [esi+0], r, reg_float_1
-	add esp, -12
-	vvmov [esp-12], reg_float_1, 1
-	mov esi, pos
-	ffsub [esi+4], r, reg_float_1
-	vvmov [esp-16], reg_float_1, 1
-	mov esi, pos
-	vvmov [esp-20], [esi+8], 1
-	plea [esp-24], reg_Vec3_1
-	call Vec3__init
-	sub esp, -12
-	plea [esp-16], reg_Vec3_1
-	call ModelManager__add_vertex
-	iimov [esp-12], self
-	mov esi, pos
 	ffadd [esi+0], r, reg_float_1
 	add esp, -12
 	vvmov [esp-12], reg_float_1, 1
 	mov esi, pos
 	ffsub [esi+4], r, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	mov esi, pos
+	vvmov [esp-20], [esi+8], 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	call ModelManager__add_vertex
+	iimov [esp-12], self
+	mov esi, pos
+	ffsub [esi+0], r, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	mov esi, pos
+	ffsub [esi+4], r, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	mov esi, pos
+	vvmov [esp-20], [esi+8], 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	call ModelManager__add_vertex
+	iimov [esp-12], self
+	mov esi, pos
+	ffsub [esi+0], r, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	mov esi, pos
+	ffadd [esi+4], r, reg_float_1
 	vvmov [esp-16], reg_float_1, 1
 	mov esi, pos
 	vvmov [esp-20], [esi+8], 1
@@ -1449,8 +1472,8 @@ ModelManager__add_box PROC USES esi edi
 	iimov [esp-12], self
 	add esp, -12
 	vvmov [esp-12], 0, 1
-	vvmov [esp-16], 2, 1
-	vvmov [esp-20], 1, 1
+	vvmov [esp-16], 1, 1
+	vvmov [esp-20], 2, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1459,6 +1482,46 @@ ModelManager__add_box PROC USES esi edi
 	iimov [esp-12], self
 	add esp, -12
 	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 2, 1
+	vvmov [esp-20], 3, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 4, 1
+	vvmov [esp-16], 7, 1
+	vvmov [esp-20], 6, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 5, 1
+	vvmov [esp-16], 4, 1
+	vvmov [esp-20], 6, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 2, 1
+	vvmov [esp-16], 6, 1
+	vvmov [esp-20], 7, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 7, 1
 	vvmov [esp-16], 3, 1
 	vvmov [esp-20], 2, 1
 	plea [esp-24], reg_Triangle_1
@@ -1468,7 +1531,7 @@ ModelManager__add_box PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 4, 1
+	vvmov [esp-12], 1, 1
 	vvmov [esp-16], 5, 1
 	vvmov [esp-20], 6, 1
 	plea [esp-24], reg_Triangle_1
@@ -1478,9 +1541,9 @@ ModelManager__add_box PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 4, 1
+	vvmov [esp-12], 1, 1
 	vvmov [esp-16], 6, 1
-	vvmov [esp-20], 7, 1
+	vvmov [esp-20], 2, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1488,9 +1551,9 @@ ModelManager__add_box PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 2, 1
-	vvmov [esp-16], 6, 1
-	vvmov [esp-20], 7, 1
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 4, 1
+	vvmov [esp-20], 5, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1498,69 +1561,29 @@ ModelManager__add_box PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 2, 1
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 5, 1
+	vvmov [esp-20], 1, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 7, 1
+	vvmov [esp-20], 4, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 0, 1
 	vvmov [esp-16], 3, 1
 	vvmov [esp-20], 7, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 3, 1
-	vvmov [esp-16], 4, 1
-	vvmov [esp-20], 7, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 3, 1
-	vvmov [esp-16], 0, 1
-	vvmov [esp-20], 4, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 0, 1
-	vvmov [esp-16], 5, 1
-	vvmov [esp-20], 4, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 0, 1
-	vvmov [esp-16], 1, 1
-	vvmov [esp-20], 5, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 1, 1
-	vvmov [esp-16], 2, 1
-	vvmov [esp-20], 6, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 1, 1
-	vvmov [esp-16], 6, 1
-	vvmov [esp-20], 5, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1695,13 +1718,97 @@ ModelManager__add_box PROC USES esi edi
 ModelManager__add_box ENDP
 
 
+ModelManager__add_plane PROC USES esi edi
+	local self:DWORD, pos:DWORD, siz:DWORD, reg_Triangle_1[3]:DWORD, reg_float_1:DWORD, reg_Vec3_1[3]:DWORD
+	vvmov siz, 1161527296, 1
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 1, 1
+	vvmov [esp-20], 2, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 2, 1
+	vvmov [esp-20], 3, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	mov esi, pos
+	ffadd [esi+0], siz, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	mov esi, pos
+	ffadd [esi+4], siz, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	call ModelManager__add_vertex
+	iimov [esp-12], self
+	mov esi, pos
+	ffadd [esi+0], siz, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	mov esi, pos
+	ffsub [esi+4], siz, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	call ModelManager__add_vertex
+	iimov [esp-12], self
+	mov esi, pos
+	ffsub [esi+0], siz, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	mov esi, pos
+	ffsub [esi+4], siz, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	call ModelManager__add_vertex
+	iimov [esp-12], self
+	mov esi, pos
+	ffsub [esi+0], siz, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	mov esi, pos
+	ffadd [esi+4], siz, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	call ModelManager__add_vertex
+	end_ModelManager__add_plane:
+	ret
+ModelManager__add_plane ENDP
+
+
 ModelManager__add_spaceship PROC USES esi edi
 	local self:DWORD, reg_Triangle_1[3]:DWORD, reg_Vec3_1[3]:DWORD
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 2, 1
+	vvmov [esp-12], 0, 1
 	vvmov [esp-16], 1, 1
-	vvmov [esp-20], 0, 1
+	vvmov [esp-20], 2, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1709,9 +1816,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 1, 1
+	vvmov [esp-12], 0, 1
 	vvmov [esp-16], 3, 1
-	vvmov [esp-20], 0, 1
+	vvmov [esp-20], 1, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1719,9 +1826,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 6, 1
+	vvmov [esp-12], 4, 1
 	vvmov [esp-16], 5, 1
-	vvmov [esp-20], 4, 1
+	vvmov [esp-20], 6, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1729,9 +1836,39 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 5, 1
+	vvmov [esp-12], 4, 1
 	vvmov [esp-16], 7, 1
-	vvmov [esp-20], 4, 1
+	vvmov [esp-20], 5, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 8, 1
+	vvmov [esp-16], 9, 1
+	vvmov [esp-20], 10, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 8, 1
+	vvmov [esp-16], 11, 1
+	vvmov [esp-20], 9, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 10, 1
+	vvmov [esp-16], 7, 1
+	vvmov [esp-20], 12, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1741,7 +1878,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 10, 1
 	vvmov [esp-16], 9, 1
-	vvmov [esp-20], 8, 1
+	vvmov [esp-20], 7, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1749,58 +1886,8 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 9, 1
-	vvmov [esp-16], 11, 1
-	vvmov [esp-20], 8, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 12, 1
-	vvmov [esp-16], 7, 1
-	vvmov [esp-20], 10, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 7, 1
-	vvmov [esp-16], 9, 1
-	vvmov [esp-20], 10, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 14, 1
+	vvmov [esp-12], 6, 1
 	vvmov [esp-16], 13, 1
-	vvmov [esp-20], 6, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 13, 1
-	vvmov [esp-16], 5, 1
-	vvmov [esp-20], 6, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 1, 1
-	vvmov [esp-16], 15, 1
 	vvmov [esp-20], 14, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
@@ -1809,119 +1896,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 14, 1
-	vvmov [esp-16], 16, 1
-	vvmov [esp-20], 1, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 16, 1
-	vvmov [esp-16], 17, 1
-	vvmov [esp-20], 1, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 12, 1
-	vvmov [esp-16], 19, 1
-	vvmov [esp-20], 18, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 19, 1
-	vvmov [esp-16], 20, 1
-	vvmov [esp-20], 18, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 3, 1
-	vvmov [esp-16], 10, 1
-	vvmov [esp-20], 0, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 10, 1
-	vvmov [esp-16], 8, 1
-	vvmov [esp-20], 0, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 21, 1
-	vvmov [esp-16], 6, 1
-	vvmov [esp-20], 18, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
 	vvmov [esp-12], 6, 1
-	vvmov [esp-16], 4, 1
-	vvmov [esp-20], 18, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 23, 1
-	vvmov [esp-16], 22, 1
-	vvmov [esp-20], 15, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 22, 1
-	vvmov [esp-16], 24, 1
-	vvmov [esp-20], 15, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 2, 1
-	vvmov [esp-16], 23, 1
-	vvmov [esp-20], 1, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 23, 1
-	vvmov [esp-16], 15, 1
-	vvmov [esp-20], 1, 1
+	vvmov [esp-16], 5, 1
+	vvmov [esp-20], 13, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1931,7 +1908,97 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 14, 1
 	vvmov [esp-16], 15, 1
-	vvmov [esp-20], 13, 1
+	vvmov [esp-20], 1, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 1, 1
+	vvmov [esp-16], 16, 1
+	vvmov [esp-20], 14, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 1, 1
+	vvmov [esp-16], 17, 1
+	vvmov [esp-20], 16, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 18, 1
+	vvmov [esp-16], 19, 1
+	vvmov [esp-20], 12, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 18, 1
+	vvmov [esp-16], 20, 1
+	vvmov [esp-20], 19, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 10, 1
+	vvmov [esp-20], 3, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 8, 1
+	vvmov [esp-20], 10, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 18, 1
+	vvmov [esp-16], 6, 1
+	vvmov [esp-20], 21, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 18, 1
+	vvmov [esp-16], 4, 1
+	vvmov [esp-20], 6, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 15, 1
+	vvmov [esp-16], 22, 1
+	vvmov [esp-20], 23, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1941,6 +2008,96 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 15, 1
 	vvmov [esp-16], 24, 1
+	vvmov [esp-20], 22, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 1, 1
+	vvmov [esp-16], 23, 1
+	vvmov [esp-20], 2, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 1, 1
+	vvmov [esp-16], 15, 1
+	vvmov [esp-20], 23, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 13, 1
+	vvmov [esp-16], 15, 1
+	vvmov [esp-20], 14, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 13, 1
+	vvmov [esp-16], 24, 1
+	vvmov [esp-20], 15, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 11, 1
+	vvmov [esp-16], 25, 1
+	vvmov [esp-20], 9, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 11, 1
+	vvmov [esp-16], 26, 1
+	vvmov [esp-20], 25, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 24, 1
+	vvmov [esp-16], 27, 1
+	vvmov [esp-20], 22, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 24, 1
+	vvmov [esp-16], 28, 1
+	vvmov [esp-20], 27, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 9, 1
+	vvmov [esp-16], 29, 1
 	vvmov [esp-20], 13, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
@@ -1951,7 +2108,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 9, 1
 	vvmov [esp-16], 25, 1
-	vvmov [esp-20], 11, 1
+	vvmov [esp-20], 29, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -1959,27 +2116,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 25, 1
-	vvmov [esp-16], 26, 1
-	vvmov [esp-20], 11, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 22, 1
-	vvmov [esp-16], 27, 1
-	vvmov [esp-20], 24, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 27, 1
+	vvmov [esp-12], 13, 1
 	vvmov [esp-16], 28, 1
 	vvmov [esp-20], 24, 1
 	plea [esp-24], reg_Triangle_1
@@ -1991,57 +2128,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 13, 1
 	vvmov [esp-16], 29, 1
-	vvmov [esp-20], 9, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 29, 1
-	vvmov [esp-16], 25, 1
-	vvmov [esp-20], 9, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 24, 1
-	vvmov [esp-16], 28, 1
-	vvmov [esp-20], 13, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 28, 1
-	vvmov [esp-16], 29, 1
-	vvmov [esp-20], 13, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 29, 1
-	vvmov [esp-16], 30, 1
-	vvmov [esp-20], 25, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 30, 1
-	vvmov [esp-16], 31, 1
-	vvmov [esp-20], 25, 1
+	vvmov [esp-20], 28, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2050,26 +2137,6 @@ ModelManager__add_spaceship PROC USES esi edi
 	iimov [esp-12], self
 	add esp, -12
 	vvmov [esp-12], 25, 1
-	vvmov [esp-16], 31, 1
-	vvmov [esp-20], 26, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 31, 1
-	vvmov [esp-16], 32, 1
-	vvmov [esp-20], 26, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 28, 1
 	vvmov [esp-16], 30, 1
 	vvmov [esp-20], 29, 1
 	plea [esp-24], reg_Triangle_1
@@ -2079,37 +2146,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 27, 1
-	vvmov [esp-16], 33, 1
-	vvmov [esp-20], 28, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 33, 1
-	vvmov [esp-16], 30, 1
-	vvmov [esp-20], 28, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 33, 1
-	vvmov [esp-16], 32, 1
-	vvmov [esp-20], 30, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 32, 1
+	vvmov [esp-12], 25, 1
 	vvmov [esp-16], 31, 1
 	vvmov [esp-20], 30, 1
 	plea [esp-24], reg_Triangle_1
@@ -2119,9 +2156,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 9, 1
-	vvmov [esp-16], 34, 1
-	vvmov [esp-20], 13, 1
+	vvmov [esp-12], 26, 1
+	vvmov [esp-16], 31, 1
+	vvmov [esp-20], 25, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2129,7 +2166,127 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 34, 1
+	vvmov [esp-12], 26, 1
+	vvmov [esp-16], 32, 1
+	vvmov [esp-20], 31, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 29, 1
+	vvmov [esp-16], 30, 1
+	vvmov [esp-20], 28, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 28, 1
+	vvmov [esp-16], 33, 1
+	vvmov [esp-20], 27, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 28, 1
+	vvmov [esp-16], 30, 1
+	vvmov [esp-20], 33, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 30, 1
+	vvmov [esp-16], 32, 1
+	vvmov [esp-20], 33, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 30, 1
+	vvmov [esp-16], 31, 1
+	vvmov [esp-20], 32, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 13, 1
+	vvmov [esp-16], 34, 1
+	vvmov [esp-20], 9, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 13, 1
+	vvmov [esp-16], 35, 1
+	vvmov [esp-20], 34, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 7, 1
+	vvmov [esp-16], 36, 1
+	vvmov [esp-20], 5, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 7, 1
+	vvmov [esp-16], 37, 1
+	vvmov [esp-20], 36, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 9, 1
+	vvmov [esp-16], 37, 1
+	vvmov [esp-20], 7, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 9, 1
+	vvmov [esp-16], 34, 1
+	vvmov [esp-20], 37, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 5, 1
 	vvmov [esp-16], 35, 1
 	vvmov [esp-20], 13, 1
 	plea [esp-24], reg_Triangle_1
@@ -2141,47 +2298,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 5, 1
 	vvmov [esp-16], 36, 1
-	vvmov [esp-20], 7, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 36, 1
-	vvmov [esp-16], 37, 1
-	vvmov [esp-20], 7, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 7, 1
-	vvmov [esp-16], 37, 1
-	vvmov [esp-20], 9, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 37, 1
-	vvmov [esp-16], 34, 1
-	vvmov [esp-20], 9, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 13, 1
-	vvmov [esp-16], 35, 1
-	vvmov [esp-20], 5, 1
+	vvmov [esp-20], 35, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2190,8 +2307,48 @@ ModelManager__add_spaceship PROC USES esi edi
 	iimov [esp-12], self
 	add esp, -12
 	vvmov [esp-12], 35, 1
-	vvmov [esp-16], 36, 1
-	vvmov [esp-20], 5, 1
+	vvmov [esp-16], 38, 1
+	vvmov [esp-20], 34, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 35, 1
+	vvmov [esp-16], 39, 1
+	vvmov [esp-20], 38, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 37, 1
+	vvmov [esp-16], 40, 1
+	vvmov [esp-20], 36, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 37, 1
+	vvmov [esp-16], 41, 1
+	vvmov [esp-20], 40, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 34, 1
+	vvmov [esp-16], 41, 1
+	vvmov [esp-20], 37, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2201,7 +2358,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 34, 1
 	vvmov [esp-16], 38, 1
-	vvmov [esp-20], 35, 1
+	vvmov [esp-20], 41, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2209,7 +2366,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 38, 1
+	vvmov [esp-12], 36, 1
 	vvmov [esp-16], 39, 1
 	vvmov [esp-20], 35, 1
 	plea [esp-24], reg_Triangle_1
@@ -2221,97 +2378,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 36, 1
 	vvmov [esp-16], 40, 1
-	vvmov [esp-20], 37, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 40, 1
-	vvmov [esp-16], 41, 1
-	vvmov [esp-20], 37, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 37, 1
-	vvmov [esp-16], 41, 1
-	vvmov [esp-20], 34, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 41, 1
-	vvmov [esp-16], 38, 1
-	vvmov [esp-20], 34, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 35, 1
-	vvmov [esp-16], 39, 1
-	vvmov [esp-20], 36, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 39, 1
-	vvmov [esp-16], 40, 1
-	vvmov [esp-20], 36, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 17, 1
-	vvmov [esp-16], 16, 1
-	vvmov [esp-20], 42, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 16, 1
-	vvmov [esp-16], 43, 1
-	vvmov [esp-20], 42, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 6, 1
-	vvmov [esp-16], 43, 1
-	vvmov [esp-20], 14, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 43, 1
-	vvmov [esp-16], 16, 1
-	vvmov [esp-20], 14, 1
+	vvmov [esp-20], 39, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2320,8 +2387,48 @@ ModelManager__add_spaceship PROC USES esi edi
 	iimov [esp-12], self
 	add esp, -12
 	vvmov [esp-12], 42, 1
+	vvmov [esp-16], 16, 1
+	vvmov [esp-20], 17, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 42, 1
+	vvmov [esp-16], 43, 1
+	vvmov [esp-20], 16, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 14, 1
+	vvmov [esp-16], 43, 1
+	vvmov [esp-20], 6, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 14, 1
+	vvmov [esp-16], 16, 1
+	vvmov [esp-20], 43, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 21, 1
 	vvmov [esp-16], 44, 1
-	vvmov [esp-20], 21, 1
+	vvmov [esp-20], 42, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2329,9 +2436,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 44, 1
+	vvmov [esp-12], 21, 1
 	vvmov [esp-16], 45, 1
-	vvmov [esp-20], 21, 1
+	vvmov [esp-20], 44, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2339,29 +2446,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 20, 1
+	vvmov [esp-12], 46, 1
 	vvmov [esp-16], 19, 1
-	vvmov [esp-20], 46, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 19, 1
-	vvmov [esp-16], 47, 1
-	vvmov [esp-20], 46, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 3, 1
-	vvmov [esp-16], 46, 1
-	vvmov [esp-20], 10, 1
+	vvmov [esp-20], 20, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2371,7 +2458,17 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 46, 1
 	vvmov [esp-16], 47, 1
-	vvmov [esp-20], 10, 1
+	vvmov [esp-20], 19, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 10, 1
+	vvmov [esp-16], 46, 1
+	vvmov [esp-20], 3, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2381,7 +2478,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 10, 1
 	vvmov [esp-16], 47, 1
-	vvmov [esp-20], 12, 1
+	vvmov [esp-20], 46, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2389,9 +2486,19 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 47, 1
+	vvmov [esp-12], 12, 1
+	vvmov [esp-16], 47, 1
+	vvmov [esp-20], 10, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 12, 1
 	vvmov [esp-16], 19, 1
-	vvmov [esp-20], 12, 1
+	vvmov [esp-20], 47, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2399,9 +2506,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 42, 1
+	vvmov [esp-12], 17, 1
 	vvmov [esp-16], 48, 1
-	vvmov [esp-20], 17, 1
+	vvmov [esp-20], 42, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2409,7 +2516,77 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 48, 1
+	vvmov [esp-12], 17, 1
+	vvmov [esp-16], 49, 1
+	vvmov [esp-20], 48, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 3, 1
+	vvmov [esp-16], 50, 1
+	vvmov [esp-20], 1, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 3, 1
+	vvmov [esp-16], 51, 1
+	vvmov [esp-20], 50, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 46, 1
+	vvmov [esp-16], 51, 1
+	vvmov [esp-20], 3, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 46, 1
+	vvmov [esp-16], 52, 1
+	vvmov [esp-20], 51, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 20, 1
+	vvmov [esp-16], 52, 1
+	vvmov [esp-20], 46, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 20, 1
+	vvmov [esp-16], 53, 1
+	vvmov [esp-20], 52, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 1, 1
 	vvmov [esp-16], 49, 1
 	vvmov [esp-20], 17, 1
 	plea [esp-24], reg_Triangle_1
@@ -2421,7 +2598,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 1, 1
 	vvmov [esp-16], 50, 1
-	vvmov [esp-20], 3, 1
+	vvmov [esp-20], 49, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2429,107 +2606,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 50, 1
-	vvmov [esp-16], 51, 1
-	vvmov [esp-20], 3, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 3, 1
-	vvmov [esp-16], 51, 1
-	vvmov [esp-20], 46, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 51, 1
-	vvmov [esp-16], 52, 1
-	vvmov [esp-20], 46, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 46, 1
-	vvmov [esp-16], 52, 1
-	vvmov [esp-20], 20, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 52, 1
-	vvmov [esp-16], 53, 1
-	vvmov [esp-20], 20, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 17, 1
-	vvmov [esp-16], 49, 1
-	vvmov [esp-20], 1, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 49, 1
-	vvmov [esp-16], 50, 1
-	vvmov [esp-20], 1, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 18, 1
-	vvmov [esp-16], 54, 1
-	vvmov [esp-20], 21, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 54, 1
-	vvmov [esp-16], 55, 1
-	vvmov [esp-20], 21, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 20, 1
-	vvmov [esp-16], 53, 1
-	vvmov [esp-20], 18, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 53, 1
+	vvmov [esp-12], 21, 1
 	vvmov [esp-16], 54, 1
 	vvmov [esp-20], 18, 1
 	plea [esp-24], reg_Triangle_1
@@ -2541,7 +2618,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 21, 1
 	vvmov [esp-16], 55, 1
-	vvmov [esp-20], 42, 1
+	vvmov [esp-20], 54, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2549,9 +2626,39 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 55, 1
+	vvmov [esp-12], 18, 1
+	vvmov [esp-16], 53, 1
+	vvmov [esp-20], 20, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 18, 1
+	vvmov [esp-16], 54, 1
+	vvmov [esp-20], 53, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 42, 1
+	vvmov [esp-16], 55, 1
+	vvmov [esp-20], 21, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 42, 1
 	vvmov [esp-16], 48, 1
-	vvmov [esp-20], 42, 1
+	vvmov [esp-20], 55, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2559,59 +2666,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 53, 1
+	vvmov [esp-12], 54, 1
 	vvmov [esp-16], 56, 1
-	vvmov [esp-20], 54, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 56, 1
-	vvmov [esp-16], 57, 1
-	vvmov [esp-20], 54, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 55, 1
-	vvmov [esp-16], 58, 1
-	vvmov [esp-20], 48, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 58, 1
-	vvmov [esp-16], 59, 1
-	vvmov [esp-20], 48, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 48, 1
-	vvmov [esp-16], 59, 1
-	vvmov [esp-20], 49, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 59, 1
-	vvmov [esp-16], 60, 1
-	vvmov [esp-20], 49, 1
+	vvmov [esp-20], 53, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2621,7 +2678,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 54, 1
 	vvmov [esp-16], 57, 1
-	vvmov [esp-20], 55, 1
+	vvmov [esp-20], 56, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2629,7 +2686,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 57, 1
+	vvmov [esp-12], 48, 1
 	vvmov [esp-16], 58, 1
 	vvmov [esp-20], 55, 1
 	plea [esp-24], reg_Triangle_1
@@ -2639,9 +2696,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 51, 1
-	vvmov [esp-16], 61, 1
-	vvmov [esp-20], 52, 1
+	vvmov [esp-12], 48, 1
+	vvmov [esp-16], 59, 1
+	vvmov [esp-20], 58, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2649,29 +2706,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 61, 1
-	vvmov [esp-16], 62, 1
-	vvmov [esp-20], 52, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 52, 1
-	vvmov [esp-16], 62, 1
-	vvmov [esp-20], 53, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 62, 1
-	vvmov [esp-16], 56, 1
-	vvmov [esp-20], 53, 1
+	vvmov [esp-12], 49, 1
+	vvmov [esp-16], 59, 1
+	vvmov [esp-20], 48, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2681,7 +2718,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 49, 1
 	vvmov [esp-16], 60, 1
-	vvmov [esp-20], 50, 1
+	vvmov [esp-20], 59, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2689,9 +2726,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 60, 1
-	vvmov [esp-16], 63, 1
-	vvmov [esp-20], 50, 1
+	vvmov [esp-12], 55, 1
+	vvmov [esp-16], 57, 1
+	vvmov [esp-20], 54, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2699,9 +2736,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 50, 1
-	vvmov [esp-16], 63, 1
-	vvmov [esp-20], 51, 1
+	vvmov [esp-12], 55, 1
+	vvmov [esp-16], 58, 1
+	vvmov [esp-20], 57, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2709,7 +2746,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 63, 1
+	vvmov [esp-12], 52, 1
 	vvmov [esp-16], 61, 1
 	vvmov [esp-20], 51, 1
 	plea [esp-24], reg_Triangle_1
@@ -2719,8 +2756,28 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 61, 1
-	vvmov [esp-16], 64, 1
+	vvmov [esp-12], 52, 1
+	vvmov [esp-16], 62, 1
+	vvmov [esp-20], 61, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 53, 1
+	vvmov [esp-16], 62, 1
+	vvmov [esp-20], 52, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 53, 1
+	vvmov [esp-16], 56, 1
 	vvmov [esp-20], 62, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
@@ -2729,9 +2786,49 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 64, 1
-	vvmov [esp-16], 65, 1
-	vvmov [esp-20], 62, 1
+	vvmov [esp-12], 50, 1
+	vvmov [esp-16], 60, 1
+	vvmov [esp-20], 49, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 50, 1
+	vvmov [esp-16], 63, 1
+	vvmov [esp-20], 60, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 51, 1
+	vvmov [esp-16], 63, 1
+	vvmov [esp-20], 50, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 51, 1
+	vvmov [esp-16], 61, 1
+	vvmov [esp-20], 63, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 62, 1
+	vvmov [esp-16], 64, 1
+	vvmov [esp-20], 61, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2741,7 +2838,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 62, 1
 	vvmov [esp-16], 65, 1
-	vvmov [esp-20], 56, 1
+	vvmov [esp-20], 64, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2749,49 +2846,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 65, 1
-	vvmov [esp-16], 66, 1
-	vvmov [esp-20], 56, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 60, 1
-	vvmov [esp-16], 67, 1
-	vvmov [esp-20], 63, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 67, 1
-	vvmov [esp-16], 68, 1
-	vvmov [esp-20], 63, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 63, 1
-	vvmov [esp-16], 68, 1
-	vvmov [esp-20], 61, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 68, 1
-	vvmov [esp-16], 64, 1
-	vvmov [esp-20], 61, 1
+	vvmov [esp-12], 56, 1
+	vvmov [esp-16], 65, 1
+	vvmov [esp-20], 62, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2801,7 +2858,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 56, 1
 	vvmov [esp-16], 66, 1
-	vvmov [esp-20], 57, 1
+	vvmov [esp-20], 65, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2809,7 +2866,107 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 66, 1
+	vvmov [esp-12], 63, 1
+	vvmov [esp-16], 67, 1
+	vvmov [esp-20], 60, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 63, 1
+	vvmov [esp-16], 68, 1
+	vvmov [esp-20], 67, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 61, 1
+	vvmov [esp-16], 68, 1
+	vvmov [esp-20], 63, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 61, 1
+	vvmov [esp-16], 64, 1
+	vvmov [esp-20], 68, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 57, 1
+	vvmov [esp-16], 66, 1
+	vvmov [esp-20], 56, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 57, 1
+	vvmov [esp-16], 69, 1
+	vvmov [esp-20], 66, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 59, 1
+	vvmov [esp-16], 70, 1
+	vvmov [esp-20], 58, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 59, 1
+	vvmov [esp-16], 71, 1
+	vvmov [esp-20], 70, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 60, 1
+	vvmov [esp-16], 71, 1
+	vvmov [esp-20], 59, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 60, 1
+	vvmov [esp-16], 67, 1
+	vvmov [esp-20], 71, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 58, 1
 	vvmov [esp-16], 69, 1
 	vvmov [esp-20], 57, 1
 	plea [esp-24], reg_Triangle_1
@@ -2821,7 +2978,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 58, 1
 	vvmov [esp-16], 70, 1
-	vvmov [esp-20], 59, 1
+	vvmov [esp-20], 69, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2829,77 +2986,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 70, 1
-	vvmov [esp-16], 71, 1
-	vvmov [esp-20], 59, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 59, 1
-	vvmov [esp-16], 71, 1
-	vvmov [esp-20], 60, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 71, 1
-	vvmov [esp-16], 67, 1
-	vvmov [esp-20], 60, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 57, 1
-	vvmov [esp-16], 69, 1
-	vvmov [esp-20], 58, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 69, 1
-	vvmov [esp-16], 70, 1
-	vvmov [esp-20], 58, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 18, 1
-	vvmov [esp-16], 72, 1
-	vvmov [esp-20], 12, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 72, 1
-	vvmov [esp-16], 73, 1
-	vvmov [esp-20], 12, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 4, 1
+	vvmov [esp-12], 12, 1
 	vvmov [esp-16], 72, 1
 	vvmov [esp-20], 18, 1
 	plea [esp-24], reg_Triangle_1
@@ -2911,7 +2998,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 12, 1
 	vvmov [esp-16], 73, 1
-	vvmov [esp-20], 7, 1
+	vvmov [esp-20], 72, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2919,9 +3006,19 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 73, 1
-	vvmov [esp-16], 74, 1
-	vvmov [esp-20], 7, 1
+	vvmov [esp-12], 18, 1
+	vvmov [esp-16], 72, 1
+	vvmov [esp-20], 4, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 7, 1
+	vvmov [esp-16], 73, 1
+	vvmov [esp-20], 12, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2931,7 +3028,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 7, 1
 	vvmov [esp-16], 74, 1
-	vvmov [esp-20], 4, 1
+	vvmov [esp-20], 73, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2939,19 +3036,19 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 77, 1
+	vvmov [esp-12], 4, 1
+	vvmov [esp-16], 74, 1
+	vvmov [esp-20], 7, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 75, 1
 	vvmov [esp-16], 76, 1
-	vvmov [esp-20], 75, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 76, 1
-	vvmov [esp-16], 78, 1
-	vvmov [esp-20], 75, 1
+	vvmov [esp-20], 77, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2961,7 +3058,77 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 75, 1
 	vvmov [esp-16], 78, 1
+	vvmov [esp-20], 76, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 79, 1
+	vvmov [esp-16], 78, 1
+	vvmov [esp-20], 75, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 79, 1
+	vvmov [esp-16], 80, 1
+	vvmov [esp-20], 78, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 77, 1
+	vvmov [esp-16], 81, 1
+	vvmov [esp-20], 82, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 77, 1
+	vvmov [esp-16], 76, 1
+	vvmov [esp-20], 81, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 82, 1
+	vvmov [esp-16], 80, 1
 	vvmov [esp-20], 79, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 82, 1
+	vvmov [esp-16], 81, 1
+	vvmov [esp-20], 80, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 78, 1
+	vvmov [esp-16], 81, 1
+	vvmov [esp-20], 76, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2971,7 +3138,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 78, 1
 	vvmov [esp-16], 80, 1
-	vvmov [esp-20], 79, 1
+	vvmov [esp-20], 81, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -2979,79 +3146,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 82, 1
-	vvmov [esp-16], 81, 1
-	vvmov [esp-20], 77, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 81, 1
-	vvmov [esp-16], 76, 1
-	vvmov [esp-20], 77, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 79, 1
-	vvmov [esp-16], 80, 1
-	vvmov [esp-20], 82, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 80, 1
-	vvmov [esp-16], 81, 1
-	vvmov [esp-20], 82, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 76, 1
-	vvmov [esp-16], 81, 1
-	vvmov [esp-20], 78, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 81, 1
-	vvmov [esp-16], 80, 1
-	vvmov [esp-20], 78, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 73, 1
+	vvmov [esp-12], 74, 1
 	vvmov [esp-16], 79, 1
-	vvmov [esp-20], 74, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 79, 1
-	vvmov [esp-16], 82, 1
-	vvmov [esp-20], 74, 1
+	vvmov [esp-20], 73, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3061,7 +3158,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 74, 1
 	vvmov [esp-16], 82, 1
-	vvmov [esp-20], 4, 1
+	vvmov [esp-20], 79, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3069,7 +3166,47 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 82, 1
+	vvmov [esp-12], 4, 1
+	vvmov [esp-16], 82, 1
+	vvmov [esp-20], 74, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 4, 1
+	vvmov [esp-16], 77, 1
+	vvmov [esp-20], 82, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 73, 1
+	vvmov [esp-16], 75, 1
+	vvmov [esp-20], 72, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 73, 1
+	vvmov [esp-16], 79, 1
+	vvmov [esp-20], 75, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 72, 1
 	vvmov [esp-16], 77, 1
 	vvmov [esp-20], 4, 1
 	plea [esp-24], reg_Triangle_1
@@ -3081,7 +3218,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 72, 1
 	vvmov [esp-16], 75, 1
-	vvmov [esp-20], 73, 1
+	vvmov [esp-20], 77, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3089,49 +3226,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 75, 1
-	vvmov [esp-16], 79, 1
-	vvmov [esp-20], 73, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 4, 1
-	vvmov [esp-16], 77, 1
-	vvmov [esp-20], 72, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 77, 1
-	vvmov [esp-16], 75, 1
-	vvmov [esp-20], 72, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 21, 1
+	vvmov [esp-12], 6, 1
 	vvmov [esp-16], 45, 1
-	vvmov [esp-20], 6, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 45, 1
-	vvmov [esp-16], 83, 1
-	vvmov [esp-20], 6, 1
+	vvmov [esp-20], 21, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3141,7 +3238,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 6, 1
 	vvmov [esp-16], 83, 1
-	vvmov [esp-20], 43, 1
+	vvmov [esp-20], 45, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3149,9 +3246,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 83, 1
-	vvmov [esp-16], 84, 1
-	vvmov [esp-20], 43, 1
+	vvmov [esp-12], 43, 1
+	vvmov [esp-16], 83, 1
+	vvmov [esp-20], 6, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3161,7 +3258,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 43, 1
 	vvmov [esp-16], 84, 1
-	vvmov [esp-20], 42, 1
+	vvmov [esp-20], 83, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3169,38 +3266,18 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 84, 1
+	vvmov [esp-12], 42, 1
+	vvmov [esp-16], 84, 1
+	vvmov [esp-20], 43, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 42, 1
 	vvmov [esp-16], 44, 1
-	vvmov [esp-20], 42, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 44, 1
-	vvmov [esp-16], 85, 1
-	vvmov [esp-20], 45, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 85, 1
-	vvmov [esp-16], 86, 1
-	vvmov [esp-20], 45, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 83, 1
-	vvmov [esp-16], 87, 1
 	vvmov [esp-20], 84, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
@@ -3209,27 +3286,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 87, 1
-	vvmov [esp-16], 88, 1
-	vvmov [esp-20], 84, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 84, 1
-	vvmov [esp-16], 88, 1
-	vvmov [esp-20], 44, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 88, 1
+	vvmov [esp-12], 45, 1
 	vvmov [esp-16], 85, 1
 	vvmov [esp-20], 44, 1
 	plea [esp-24], reg_Triangle_1
@@ -3241,7 +3298,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 45, 1
 	vvmov [esp-16], 86, 1
-	vvmov [esp-20], 83, 1
+	vvmov [esp-20], 85, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3249,7 +3306,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 86, 1
+	vvmov [esp-12], 84, 1
 	vvmov [esp-16], 87, 1
 	vvmov [esp-20], 83, 1
 	plea [esp-24], reg_Triangle_1
@@ -3259,8 +3316,48 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 85, 1
-	vvmov [esp-16], 89, 1
+	vvmov [esp-12], 84, 1
+	vvmov [esp-16], 88, 1
+	vvmov [esp-20], 87, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 44, 1
+	vvmov [esp-16], 88, 1
+	vvmov [esp-20], 84, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 44, 1
+	vvmov [esp-16], 85, 1
+	vvmov [esp-20], 88, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 83, 1
+	vvmov [esp-16], 86, 1
+	vvmov [esp-20], 45, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 83, 1
+	vvmov [esp-16], 87, 1
 	vvmov [esp-20], 86, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
@@ -3269,7 +3366,67 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 89, 1
+	vvmov [esp-12], 86, 1
+	vvmov [esp-16], 89, 1
+	vvmov [esp-20], 85, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 86, 1
+	vvmov [esp-16], 90, 1
+	vvmov [esp-20], 89, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 88, 1
+	vvmov [esp-16], 91, 1
+	vvmov [esp-20], 87, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 88, 1
+	vvmov [esp-16], 92, 1
+	vvmov [esp-20], 91, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 85, 1
+	vvmov [esp-16], 92, 1
+	vvmov [esp-20], 88, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 85, 1
+	vvmov [esp-16], 89, 1
+	vvmov [esp-20], 92, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 87, 1
 	vvmov [esp-16], 90, 1
 	vvmov [esp-20], 86, 1
 	plea [esp-24], reg_Triangle_1
@@ -3281,7 +3438,17 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 87, 1
 	vvmov [esp-16], 91, 1
-	vvmov [esp-20], 88, 1
+	vvmov [esp-20], 90, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 91, 1
+	vvmov [esp-16], 89, 1
+	vvmov [esp-20], 90, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3291,7 +3458,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 91, 1
 	vvmov [esp-16], 92, 1
-	vvmov [esp-20], 88, 1
+	vvmov [esp-20], 89, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3299,69 +3466,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 88, 1
-	vvmov [esp-16], 92, 1
-	vvmov [esp-20], 85, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 92, 1
-	vvmov [esp-16], 89, 1
-	vvmov [esp-20], 85, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 86, 1
-	vvmov [esp-16], 90, 1
-	vvmov [esp-20], 87, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 90, 1
-	vvmov [esp-16], 91, 1
-	vvmov [esp-20], 87, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 90, 1
-	vvmov [esp-16], 89, 1
-	vvmov [esp-20], 91, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 89, 1
-	vvmov [esp-16], 92, 1
-	vvmov [esp-20], 91, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 66, 1
+	vvmov [esp-12], 69, 1
 	vvmov [esp-16], 65, 1
-	vvmov [esp-20], 69, 1
+	vvmov [esp-20], 66, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3369,9 +3476,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 65, 1
+	vvmov [esp-12], 69, 1
 	vvmov [esp-16], 64, 1
-	vvmov [esp-20], 69, 1
+	vvmov [esp-20], 65, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3379,9 +3486,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 64, 1
+	vvmov [esp-12], 69, 1
 	vvmov [esp-16], 68, 1
-	vvmov [esp-20], 69, 1
+	vvmov [esp-20], 64, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3389,9 +3496,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 68, 1
+	vvmov [esp-12], 69, 1
 	vvmov [esp-16], 67, 1
-	vvmov [esp-20], 69, 1
+	vvmov [esp-20], 68, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3399,9 +3506,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 67, 1
+	vvmov [esp-12], 69, 1
 	vvmov [esp-16], 71, 1
-	vvmov [esp-20], 69, 1
+	vvmov [esp-20], 67, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3409,9 +3516,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 71, 1
+	vvmov [esp-12], 69, 1
 	vvmov [esp-16], 70, 1
-	vvmov [esp-20], 69, 1
+	vvmov [esp-20], 71, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3419,9 +3526,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 40, 1
+	vvmov [esp-12], 41, 1
 	vvmov [esp-16], 39, 1
-	vvmov [esp-20], 41, 1
+	vvmov [esp-20], 40, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3429,9 +3536,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 39, 1
+	vvmov [esp-12], 41, 1
 	vvmov [esp-16], 38, 1
-	vvmov [esp-20], 41, 1
+	vvmov [esp-20], 39, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3439,9 +3546,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 94, 1
+	vvmov [esp-12], 0, 1
 	vvmov [esp-16], 93, 1
-	vvmov [esp-20], 0, 1
+	vvmov [esp-20], 94, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3449,9 +3556,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 93, 1
+	vvmov [esp-12], 0, 1
 	vvmov [esp-16], 2, 1
-	vvmov [esp-20], 0, 1
+	vvmov [esp-20], 93, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3459,149 +3566,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 97, 1
+	vvmov [esp-12], 95, 1
 	vvmov [esp-16], 96, 1
-	vvmov [esp-20], 95, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 96, 1
-	vvmov [esp-16], 98, 1
-	vvmov [esp-20], 95, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 11, 1
-	vvmov [esp-16], 99, 1
-	vvmov [esp-20], 8, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 99, 1
-	vvmov [esp-16], 100, 1
-	vvmov [esp-20], 8, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 99, 1
-	vvmov [esp-16], 97, 1
-	vvmov [esp-20], 100, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 97, 1
-	vvmov [esp-16], 101, 1
-	vvmov [esp-20], 100, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 96, 1
-	vvmov [esp-16], 102, 1
-	vvmov [esp-20], 98, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 102, 1
-	vvmov [esp-16], 103, 1
-	vvmov [esp-20], 98, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 104, 1
-	vvmov [esp-16], 93, 1
-	vvmov [esp-20], 103, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 106, 1
-	vvmov [esp-16], 105, 1
-	vvmov [esp-20], 93, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 105, 1
-	vvmov [esp-16], 103, 1
-	vvmov [esp-20], 93, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 109, 1
-	vvmov [esp-16], 108, 1
-	vvmov [esp-20], 107, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 108, 1
-	vvmov [esp-16], 101, 1
-	vvmov [esp-20], 107, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 8, 1
-	vvmov [esp-16], 100, 1
-	vvmov [esp-20], 0, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 100, 1
-	vvmov [esp-16], 94, 1
-	vvmov [esp-20], 0, 1
+	vvmov [esp-20], 97, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3611,7 +3578,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	add esp, -12
 	vvmov [esp-12], 95, 1
 	vvmov [esp-16], 98, 1
-	vvmov [esp-20], 107, 1
+	vvmov [esp-20], 96, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -3619,87 +3586,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 98, 1
-	vvmov [esp-16], 110, 1
-	vvmov [esp-20], 107, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 111, 1
-	vvmov [esp-16], 22, 1
-	vvmov [esp-20], 104, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 22, 1
-	vvmov [esp-16], 23, 1
-	vvmov [esp-20], 104, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 104, 1
-	vvmov [esp-16], 23, 1
-	vvmov [esp-20], 93, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 23, 1
-	vvmov [esp-16], 2, 1
-	vvmov [esp-20], 93, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 111, 1
-	vvmov [esp-16], 104, 1
-	vvmov [esp-20], 102, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 104, 1
-	vvmov [esp-16], 103, 1
-	vvmov [esp-20], 102, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 26, 1
-	vvmov [esp-16], 112, 1
-	vvmov [esp-20], 11, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 112, 1
+	vvmov [esp-12], 8, 1
 	vvmov [esp-16], 99, 1
 	vvmov [esp-20], 11, 1
 	plea [esp-24], reg_Triangle_1
@@ -3709,28 +3596,8 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 113, 1
-	vvmov [esp-16], 27, 1
-	vvmov [esp-20], 111, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 27, 1
-	vvmov [esp-16], 22, 1
-	vvmov [esp-20], 111, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 112, 1
-	vvmov [esp-16], 114, 1
+	vvmov [esp-12], 8, 1
+	vvmov [esp-16], 100, 1
 	vvmov [esp-20], 99, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
@@ -3739,177 +3606,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 114, 1
-	vvmov [esp-16], 102, 1
-	vvmov [esp-20], 99, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 114, 1
-	vvmov [esp-16], 113, 1
-	vvmov [esp-20], 102, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 113, 1
-	vvmov [esp-16], 111, 1
-	vvmov [esp-20], 102, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 116, 1
-	vvmov [esp-16], 115, 1
-	vvmov [esp-20], 112, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 115, 1
-	vvmov [esp-16], 114, 1
-	vvmov [esp-20], 112, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 32, 1
-	vvmov [esp-16], 116, 1
-	vvmov [esp-20], 26, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 116, 1
-	vvmov [esp-16], 112, 1
-	vvmov [esp-20], 26, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 115, 1
-	vvmov [esp-16], 113, 1
-	vvmov [esp-20], 114, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 115, 1
-	vvmov [esp-16], 33, 1
-	vvmov [esp-20], 113, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 33, 1
-	vvmov [esp-16], 27, 1
-	vvmov [esp-20], 113, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 116, 1
-	vvmov [esp-16], 32, 1
-	vvmov [esp-20], 115, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 32, 1
-	vvmov [esp-16], 33, 1
-	vvmov [esp-20], 115, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 118, 1
-	vvmov [esp-16], 117, 1
-	vvmov [esp-20], 102, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 117, 1
-	vvmov [esp-16], 99, 1
-	vvmov [esp-20], 102, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 120, 1
-	vvmov [esp-16], 119, 1
-	vvmov [esp-20], 97, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 119, 1
-	vvmov [esp-16], 96, 1
-	vvmov [esp-20], 97, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 117, 1
-	vvmov [esp-16], 120, 1
-	vvmov [esp-20], 99, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 120, 1
+	vvmov [esp-12], 100, 1
 	vvmov [esp-16], 97, 1
 	vvmov [esp-20], 99, 1
 	plea [esp-24], reg_Triangle_1
@@ -3919,747 +3616,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 119, 1
-	vvmov [esp-16], 118, 1
-	vvmov [esp-20], 96, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 118, 1
-	vvmov [esp-16], 102, 1
-	vvmov [esp-20], 96, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 122, 1
-	vvmov [esp-16], 121, 1
-	vvmov [esp-20], 118, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 121, 1
-	vvmov [esp-16], 117, 1
-	vvmov [esp-20], 118, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 124, 1
-	vvmov [esp-16], 123, 1
-	vvmov [esp-20], 120, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 123, 1
-	vvmov [esp-16], 119, 1
-	vvmov [esp-20], 120, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 121, 1
-	vvmov [esp-16], 124, 1
-	vvmov [esp-20], 117, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 124, 1
-	vvmov [esp-16], 120, 1
-	vvmov [esp-20], 117, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 123, 1
-	vvmov [esp-16], 122, 1
-	vvmov [esp-20], 119, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 122, 1
-	vvmov [esp-16], 118, 1
-	vvmov [esp-20], 119, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 126, 1
-	vvmov [esp-16], 105, 1
-	vvmov [esp-20], 125, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 105, 1
-	vvmov [esp-16], 106, 1
-	vvmov [esp-20], 125, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 105, 1
-	vvmov [esp-16], 126, 1
-	vvmov [esp-20], 103, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 126, 1
-	vvmov [esp-16], 98, 1
-	vvmov [esp-20], 103, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 128, 1
-	vvmov [esp-16], 127, 1
-	vvmov [esp-20], 110, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 127, 1
-	vvmov [esp-16], 125, 1
-	vvmov [esp-20], 110, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 130, 1
-	vvmov [esp-16], 108, 1
-	vvmov [esp-20], 129, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 108, 1
-	vvmov [esp-16], 109, 1
-	vvmov [esp-20], 129, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 130, 1
-	vvmov [esp-16], 129, 1
-	vvmov [esp-20], 100, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 129, 1
-	vvmov [esp-16], 94, 1
-	vvmov [esp-20], 100, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 108, 1
-	vvmov [esp-16], 130, 1
-	vvmov [esp-20], 101, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 130, 1
-	vvmov [esp-16], 100, 1
-	vvmov [esp-20], 101, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 132, 1
-	vvmov [esp-16], 131, 1
-	vvmov [esp-20], 106, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 131, 1
-	vvmov [esp-16], 125, 1
-	vvmov [esp-20], 106, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 134, 1
-	vvmov [esp-16], 133, 1
-	vvmov [esp-20], 94, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 133, 1
-	vvmov [esp-16], 93, 1
-	vvmov [esp-20], 94, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 135, 1
-	vvmov [esp-16], 134, 1
-	vvmov [esp-20], 129, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 134, 1
-	vvmov [esp-16], 94, 1
-	vvmov [esp-20], 129, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 136, 1
-	vvmov [esp-16], 135, 1
-	vvmov [esp-20], 109, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 135, 1
-	vvmov [esp-16], 129, 1
-	vvmov [esp-20], 109, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 133, 1
-	vvmov [esp-16], 132, 1
-	vvmov [esp-20], 93, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 132, 1
-	vvmov [esp-16], 106, 1
-	vvmov [esp-20], 93, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 138, 1
-	vvmov [esp-16], 137, 1
-	vvmov [esp-20], 110, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 137, 1
-	vvmov [esp-16], 107, 1
-	vvmov [esp-20], 110, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 137, 1
-	vvmov [esp-16], 136, 1
-	vvmov [esp-20], 107, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 136, 1
-	vvmov [esp-16], 109, 1
-	vvmov [esp-20], 107, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 131, 1
-	vvmov [esp-16], 138, 1
-	vvmov [esp-20], 125, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 138, 1
-	vvmov [esp-16], 110, 1
-	vvmov [esp-20], 125, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 140, 1
-	vvmov [esp-16], 139, 1
-	vvmov [esp-20], 137, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 139, 1
-	vvmov [esp-16], 136, 1
-	vvmov [esp-20], 137, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 142, 1
-	vvmov [esp-16], 141, 1
-	vvmov [esp-20], 131, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 141, 1
-	vvmov [esp-16], 138, 1
-	vvmov [esp-20], 131, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 143, 1
-	vvmov [esp-16], 142, 1
-	vvmov [esp-20], 132, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 142, 1
-	vvmov [esp-16], 131, 1
-	vvmov [esp-20], 132, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 141, 1
-	vvmov [esp-16], 140, 1
-	vvmov [esp-20], 138, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 140, 1
-	vvmov [esp-16], 137, 1
-	vvmov [esp-20], 138, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 145, 1
-	vvmov [esp-16], 144, 1
-	vvmov [esp-20], 135, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 144, 1
-	vvmov [esp-16], 134, 1
-	vvmov [esp-20], 135, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 139, 1
-	vvmov [esp-16], 145, 1
-	vvmov [esp-20], 136, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 145, 1
-	vvmov [esp-16], 135, 1
-	vvmov [esp-20], 136, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 146, 1
-	vvmov [esp-16], 143, 1
-	vvmov [esp-20], 133, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 143, 1
-	vvmov [esp-16], 132, 1
-	vvmov [esp-20], 133, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 144, 1
-	vvmov [esp-16], 146, 1
-	vvmov [esp-20], 134, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 146, 1
-	vvmov [esp-16], 133, 1
-	vvmov [esp-20], 134, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 148, 1
-	vvmov [esp-16], 147, 1
-	vvmov [esp-20], 145, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 147, 1
-	vvmov [esp-16], 144, 1
-	vvmov [esp-20], 145, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 149, 1
-	vvmov [esp-16], 148, 1
-	vvmov [esp-20], 139, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 148, 1
-	vvmov [esp-16], 145, 1
-	vvmov [esp-20], 139, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 151, 1
-	vvmov [esp-16], 150, 1
-	vvmov [esp-20], 146, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 150, 1
-	vvmov [esp-16], 143, 1
-	vvmov [esp-20], 146, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 147, 1
-	vvmov [esp-16], 151, 1
-	vvmov [esp-20], 144, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 151, 1
-	vvmov [esp-16], 146, 1
-	vvmov [esp-20], 144, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 152, 1
-	vvmov [esp-16], 149, 1
-	vvmov [esp-20], 140, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 149, 1
-	vvmov [esp-16], 139, 1
-	vvmov [esp-20], 140, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 154, 1
-	vvmov [esp-16], 153, 1
-	vvmov [esp-20], 142, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 153, 1
-	vvmov [esp-16], 141, 1
-	vvmov [esp-20], 142, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 150, 1
-	vvmov [esp-16], 154, 1
-	vvmov [esp-20], 143, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 154, 1
-	vvmov [esp-16], 142, 1
-	vvmov [esp-20], 143, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 153, 1
-	vvmov [esp-16], 152, 1
-	vvmov [esp-20], 141, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 152, 1
-	vvmov [esp-16], 140, 1
-	vvmov [esp-20], 141, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 156, 1
-	vvmov [esp-16], 155, 1
-	vvmov [esp-20], 101, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 155, 1
-	vvmov [esp-16], 107, 1
-	vvmov [esp-20], 101, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 155, 1
-	vvmov [esp-16], 95, 1
-	vvmov [esp-20], 107, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 157, 1
-	vvmov [esp-16], 156, 1
-	vvmov [esp-20], 97, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 156, 1
+	vvmov [esp-12], 100, 1
 	vvmov [esp-16], 101, 1
 	vvmov [esp-20], 97, 1
 	plea [esp-24], reg_Triangle_1
@@ -4669,8 +3626,98 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 157, 1
-	vvmov [esp-16], 97, 1
+	vvmov [esp-12], 98, 1
+	vvmov [esp-16], 102, 1
+	vvmov [esp-20], 96, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 98, 1
+	vvmov [esp-16], 103, 1
+	vvmov [esp-20], 102, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 103, 1
+	vvmov [esp-16], 93, 1
+	vvmov [esp-20], 104, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 93, 1
+	vvmov [esp-16], 105, 1
+	vvmov [esp-20], 106, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 93, 1
+	vvmov [esp-16], 103, 1
+	vvmov [esp-20], 105, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 107, 1
+	vvmov [esp-16], 108, 1
+	vvmov [esp-20], 109, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 107, 1
+	vvmov [esp-16], 101, 1
+	vvmov [esp-20], 108, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 100, 1
+	vvmov [esp-20], 8, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 94, 1
+	vvmov [esp-20], 100, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 107, 1
+	vvmov [esp-16], 98, 1
 	vvmov [esp-20], 95, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
@@ -4679,197 +3726,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 160, 1
-	vvmov [esp-16], 159, 1
-	vvmov [esp-20], 158, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 159, 1
-	vvmov [esp-16], 161, 1
-	vvmov [esp-20], 158, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 163, 1
-	vvmov [esp-16], 160, 1
-	vvmov [esp-20], 162, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 160, 1
-	vvmov [esp-16], 158, 1
-	vvmov [esp-20], 162, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 159, 1
-	vvmov [esp-16], 164, 1
-	vvmov [esp-20], 161, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 164, 1
-	vvmov [esp-16], 165, 1
-	vvmov [esp-20], 161, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 164, 1
-	vvmov [esp-16], 163, 1
-	vvmov [esp-20], 165, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 163, 1
-	vvmov [esp-16], 162, 1
-	vvmov [esp-20], 165, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 163, 1
-	vvmov [esp-16], 164, 1
-	vvmov [esp-20], 160, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 164, 1
-	vvmov [esp-16], 159, 1
-	vvmov [esp-20], 160, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 165, 1
-	vvmov [esp-16], 162, 1
-	vvmov [esp-20], 157, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 162, 1
-	vvmov [esp-16], 156, 1
-	vvmov [esp-20], 157, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 161, 1
-	vvmov [esp-16], 165, 1
-	vvmov [esp-20], 95, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 165, 1
-	vvmov [esp-16], 157, 1
-	vvmov [esp-20], 95, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 162, 1
-	vvmov [esp-16], 158, 1
-	vvmov [esp-20], 156, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 158, 1
-	vvmov [esp-16], 155, 1
-	vvmov [esp-20], 156, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 158, 1
-	vvmov [esp-16], 161, 1
-	vvmov [esp-20], 155, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 161, 1
-	vvmov [esp-16], 95, 1
-	vvmov [esp-20], 155, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 166, 1
-	vvmov [esp-16], 128, 1
-	vvmov [esp-20], 98, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 128, 1
+	vvmov [esp-12], 107, 1
 	vvmov [esp-16], 110, 1
 	vvmov [esp-20], 98, 1
 	plea [esp-24], reg_Triangle_1
@@ -4879,8 +3736,398 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 167, 1
-	vvmov [esp-16], 166, 1
+	vvmov [esp-12], 104, 1
+	vvmov [esp-16], 22, 1
+	vvmov [esp-20], 111, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 104, 1
+	vvmov [esp-16], 23, 1
+	vvmov [esp-20], 22, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 93, 1
+	vvmov [esp-16], 23, 1
+	vvmov [esp-20], 104, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 93, 1
+	vvmov [esp-16], 2, 1
+	vvmov [esp-20], 23, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 102, 1
+	vvmov [esp-16], 104, 1
+	vvmov [esp-20], 111, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 102, 1
+	vvmov [esp-16], 103, 1
+	vvmov [esp-20], 104, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 11, 1
+	vvmov [esp-16], 112, 1
+	vvmov [esp-20], 26, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 11, 1
+	vvmov [esp-16], 99, 1
+	vvmov [esp-20], 112, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 111, 1
+	vvmov [esp-16], 27, 1
+	vvmov [esp-20], 113, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 111, 1
+	vvmov [esp-16], 22, 1
+	vvmov [esp-20], 27, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 99, 1
+	vvmov [esp-16], 114, 1
+	vvmov [esp-20], 112, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 99, 1
+	vvmov [esp-16], 102, 1
+	vvmov [esp-20], 114, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 102, 1
+	vvmov [esp-16], 113, 1
+	vvmov [esp-20], 114, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 102, 1
+	vvmov [esp-16], 111, 1
+	vvmov [esp-20], 113, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 112, 1
+	vvmov [esp-16], 115, 1
+	vvmov [esp-20], 116, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 112, 1
+	vvmov [esp-16], 114, 1
+	vvmov [esp-20], 115, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 26, 1
+	vvmov [esp-16], 116, 1
+	vvmov [esp-20], 32, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 26, 1
+	vvmov [esp-16], 112, 1
+	vvmov [esp-20], 116, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 114, 1
+	vvmov [esp-16], 113, 1
+	vvmov [esp-20], 115, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 113, 1
+	vvmov [esp-16], 33, 1
+	vvmov [esp-20], 115, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 113, 1
+	vvmov [esp-16], 27, 1
+	vvmov [esp-20], 33, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 115, 1
+	vvmov [esp-16], 32, 1
+	vvmov [esp-20], 116, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 115, 1
+	vvmov [esp-16], 33, 1
+	vvmov [esp-20], 32, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 102, 1
+	vvmov [esp-16], 117, 1
+	vvmov [esp-20], 118, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 102, 1
+	vvmov [esp-16], 99, 1
+	vvmov [esp-20], 117, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 97, 1
+	vvmov [esp-16], 119, 1
+	vvmov [esp-20], 120, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 97, 1
+	vvmov [esp-16], 96, 1
+	vvmov [esp-20], 119, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 99, 1
+	vvmov [esp-16], 120, 1
+	vvmov [esp-20], 117, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 99, 1
+	vvmov [esp-16], 97, 1
+	vvmov [esp-20], 120, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 96, 1
+	vvmov [esp-16], 118, 1
+	vvmov [esp-20], 119, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 96, 1
+	vvmov [esp-16], 102, 1
+	vvmov [esp-20], 118, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 118, 1
+	vvmov [esp-16], 121, 1
+	vvmov [esp-20], 122, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 118, 1
+	vvmov [esp-16], 117, 1
+	vvmov [esp-20], 121, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 120, 1
+	vvmov [esp-16], 123, 1
+	vvmov [esp-20], 124, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 120, 1
+	vvmov [esp-16], 119, 1
+	vvmov [esp-20], 123, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 117, 1
+	vvmov [esp-16], 124, 1
+	vvmov [esp-20], 121, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 117, 1
+	vvmov [esp-16], 120, 1
+	vvmov [esp-20], 124, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 119, 1
+	vvmov [esp-16], 122, 1
+	vvmov [esp-20], 123, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 119, 1
+	vvmov [esp-16], 118, 1
+	vvmov [esp-20], 122, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 125, 1
+	vvmov [esp-16], 105, 1
 	vvmov [esp-20], 126, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
@@ -4889,7 +4136,27 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 166, 1
+	vvmov [esp-12], 125, 1
+	vvmov [esp-16], 106, 1
+	vvmov [esp-20], 105, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 103, 1
+	vvmov [esp-16], 126, 1
+	vvmov [esp-20], 105, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 103, 1
 	vvmov [esp-16], 98, 1
 	vvmov [esp-20], 126, 1
 	plea [esp-24], reg_Triangle_1
@@ -4899,37 +4166,7 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 127, 1
-	vvmov [esp-16], 167, 1
-	vvmov [esp-20], 125, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 167, 1
-	vvmov [esp-16], 126, 1
-	vvmov [esp-20], 125, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 169, 1
-	vvmov [esp-16], 168, 1
-	vvmov [esp-20], 128, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 168, 1
+	vvmov [esp-12], 110, 1
 	vvmov [esp-16], 127, 1
 	vvmov [esp-20], 128, 1
 	plea [esp-24], reg_Triangle_1
@@ -4939,28 +4176,8 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 171, 1
-	vvmov [esp-16], 170, 1
-	vvmov [esp-20], 167, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 170, 1
-	vvmov [esp-16], 166, 1
-	vvmov [esp-20], 167, 1
-	plea [esp-24], reg_Triangle_1
-	call Triangle__init
-	sub esp, -12
-	plea [esp-16], reg_Triangle_1
-	call ModelManager__add_triangle
-	iimov [esp-12], self
-	add esp, -12
-	vvmov [esp-12], 168, 1
-	vvmov [esp-16], 171, 1
+	vvmov [esp-12], 110, 1
+	vvmov [esp-16], 125, 1
 	vvmov [esp-20], 127, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
@@ -4969,9 +4186,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 171, 1
-	vvmov [esp-16], 167, 1
-	vvmov [esp-20], 127, 1
+	vvmov [esp-12], 129, 1
+	vvmov [esp-16], 108, 1
+	vvmov [esp-20], 130, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -4979,9 +4196,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 170, 1
-	vvmov [esp-16], 169, 1
-	vvmov [esp-20], 166, 1
+	vvmov [esp-12], 129, 1
+	vvmov [esp-16], 109, 1
+	vvmov [esp-20], 108, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -4989,9 +4206,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 169, 1
-	vvmov [esp-16], 128, 1
-	vvmov [esp-20], 166, 1
+	vvmov [esp-12], 100, 1
+	vvmov [esp-16], 129, 1
+	vvmov [esp-20], 130, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -4999,9 +4216,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 173, 1
-	vvmov [esp-16], 172, 1
-	vvmov [esp-20], 169, 1
+	vvmov [esp-12], 100, 1
+	vvmov [esp-16], 94, 1
+	vvmov [esp-20], 129, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5009,9 +4226,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 172, 1
-	vvmov [esp-16], 168, 1
-	vvmov [esp-20], 169, 1
+	vvmov [esp-12], 101, 1
+	vvmov [esp-16], 130, 1
+	vvmov [esp-20], 108, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5019,9 +4236,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 175, 1
-	vvmov [esp-16], 174, 1
-	vvmov [esp-20], 171, 1
+	vvmov [esp-12], 101, 1
+	vvmov [esp-16], 100, 1
+	vvmov [esp-20], 130, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5029,9 +4246,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 174, 1
-	vvmov [esp-16], 170, 1
-	vvmov [esp-20], 171, 1
+	vvmov [esp-12], 106, 1
+	vvmov [esp-16], 131, 1
+	vvmov [esp-20], 132, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5039,9 +4256,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 172, 1
-	vvmov [esp-16], 175, 1
-	vvmov [esp-20], 168, 1
+	vvmov [esp-12], 106, 1
+	vvmov [esp-16], 125, 1
+	vvmov [esp-20], 131, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5049,9 +4266,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 175, 1
-	vvmov [esp-16], 171, 1
-	vvmov [esp-20], 168, 1
+	vvmov [esp-12], 94, 1
+	vvmov [esp-16], 133, 1
+	vvmov [esp-20], 134, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5059,9 +4276,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 174, 1
-	vvmov [esp-16], 173, 1
-	vvmov [esp-20], 170, 1
+	vvmov [esp-12], 94, 1
+	vvmov [esp-16], 93, 1
+	vvmov [esp-20], 133, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5069,9 +4286,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 173, 1
-	vvmov [esp-16], 169, 1
-	vvmov [esp-20], 170, 1
+	vvmov [esp-12], 129, 1
+	vvmov [esp-16], 134, 1
+	vvmov [esp-20], 135, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5079,9 +4296,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 175, 1
-	vvmov [esp-16], 172, 1
-	vvmov [esp-20], 174, 1
+	vvmov [esp-12], 129, 1
+	vvmov [esp-16], 94, 1
+	vvmov [esp-20], 134, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5089,9 +4306,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 172, 1
-	vvmov [esp-16], 173, 1
-	vvmov [esp-20], 174, 1
+	vvmov [esp-12], 109, 1
+	vvmov [esp-16], 135, 1
+	vvmov [esp-20], 136, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5099,9 +4316,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 153, 1
-	vvmov [esp-16], 154, 1
-	vvmov [esp-20], 152, 1
+	vvmov [esp-12], 109, 1
+	vvmov [esp-16], 129, 1
+	vvmov [esp-20], 135, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5109,9 +4326,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 154, 1
-	vvmov [esp-16], 150, 1
-	vvmov [esp-20], 152, 1
+	vvmov [esp-12], 93, 1
+	vvmov [esp-16], 132, 1
+	vvmov [esp-20], 133, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5119,9 +4336,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 150, 1
-	vvmov [esp-16], 151, 1
-	vvmov [esp-20], 152, 1
+	vvmov [esp-12], 93, 1
+	vvmov [esp-16], 106, 1
+	vvmov [esp-20], 132, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5129,9 +4346,229 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 151, 1
+	vvmov [esp-12], 110, 1
+	vvmov [esp-16], 137, 1
+	vvmov [esp-20], 138, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 110, 1
+	vvmov [esp-16], 107, 1
+	vvmov [esp-20], 137, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 107, 1
+	vvmov [esp-16], 136, 1
+	vvmov [esp-20], 137, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 107, 1
+	vvmov [esp-16], 109, 1
+	vvmov [esp-20], 136, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 125, 1
+	vvmov [esp-16], 138, 1
+	vvmov [esp-20], 131, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 125, 1
+	vvmov [esp-16], 110, 1
+	vvmov [esp-20], 138, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 137, 1
+	vvmov [esp-16], 139, 1
+	vvmov [esp-20], 140, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 137, 1
+	vvmov [esp-16], 136, 1
+	vvmov [esp-20], 139, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 131, 1
+	vvmov [esp-16], 141, 1
+	vvmov [esp-20], 142, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 131, 1
+	vvmov [esp-16], 138, 1
+	vvmov [esp-20], 141, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 132, 1
+	vvmov [esp-16], 142, 1
+	vvmov [esp-20], 143, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 132, 1
+	vvmov [esp-16], 131, 1
+	vvmov [esp-20], 142, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 138, 1
+	vvmov [esp-16], 140, 1
+	vvmov [esp-20], 141, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 138, 1
+	vvmov [esp-16], 137, 1
+	vvmov [esp-20], 140, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 135, 1
+	vvmov [esp-16], 144, 1
+	vvmov [esp-20], 145, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 135, 1
+	vvmov [esp-16], 134, 1
+	vvmov [esp-20], 144, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 136, 1
+	vvmov [esp-16], 145, 1
+	vvmov [esp-20], 139, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 136, 1
+	vvmov [esp-16], 135, 1
+	vvmov [esp-20], 145, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 133, 1
+	vvmov [esp-16], 143, 1
+	vvmov [esp-20], 146, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 133, 1
+	vvmov [esp-16], 132, 1
+	vvmov [esp-20], 143, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 134, 1
+	vvmov [esp-16], 146, 1
+	vvmov [esp-20], 144, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 134, 1
+	vvmov [esp-16], 133, 1
+	vvmov [esp-20], 146, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 145, 1
 	vvmov [esp-16], 147, 1
-	vvmov [esp-20], 152, 1
+	vvmov [esp-20], 148, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5139,9 +4576,19 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 147, 1
+	vvmov [esp-12], 145, 1
+	vvmov [esp-16], 144, 1
+	vvmov [esp-20], 147, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 139, 1
 	vvmov [esp-16], 148, 1
-	vvmov [esp-20], 152, 1
+	vvmov [esp-20], 149, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5149,7 +4596,57 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 148, 1
+	vvmov [esp-12], 139, 1
+	vvmov [esp-16], 145, 1
+	vvmov [esp-20], 148, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 146, 1
+	vvmov [esp-16], 150, 1
+	vvmov [esp-20], 151, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 146, 1
+	vvmov [esp-16], 143, 1
+	vvmov [esp-20], 150, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 144, 1
+	vvmov [esp-16], 151, 1
+	vvmov [esp-20], 147, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 144, 1
+	vvmov [esp-16], 146, 1
+	vvmov [esp-20], 151, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 140, 1
 	vvmov [esp-16], 149, 1
 	vvmov [esp-20], 152, 1
 	plea [esp-24], reg_Triangle_1
@@ -5159,9 +4656,9 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 121, 1
-	vvmov [esp-16], 122, 1
-	vvmov [esp-20], 124, 1
+	vvmov [esp-12], 140, 1
+	vvmov [esp-16], 139, 1
+	vvmov [esp-20], 149, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -5169,9 +4666,619 @@ ModelManager__add_spaceship PROC USES esi edi
 	call ModelManager__add_triangle
 	iimov [esp-12], self
 	add esp, -12
-	vvmov [esp-12], 122, 1
+	vvmov [esp-12], 142, 1
+	vvmov [esp-16], 153, 1
+	vvmov [esp-20], 154, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 142, 1
+	vvmov [esp-16], 141, 1
+	vvmov [esp-20], 153, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 143, 1
+	vvmov [esp-16], 154, 1
+	vvmov [esp-20], 150, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 143, 1
+	vvmov [esp-16], 142, 1
+	vvmov [esp-20], 154, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 141, 1
+	vvmov [esp-16], 152, 1
+	vvmov [esp-20], 153, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 141, 1
+	vvmov [esp-16], 140, 1
+	vvmov [esp-20], 152, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 101, 1
+	vvmov [esp-16], 155, 1
+	vvmov [esp-20], 156, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 101, 1
+	vvmov [esp-16], 107, 1
+	vvmov [esp-20], 155, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 107, 1
+	vvmov [esp-16], 95, 1
+	vvmov [esp-20], 155, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 97, 1
+	vvmov [esp-16], 156, 1
+	vvmov [esp-20], 157, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 97, 1
+	vvmov [esp-16], 101, 1
+	vvmov [esp-20], 156, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 95, 1
+	vvmov [esp-16], 97, 1
+	vvmov [esp-20], 157, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 158, 1
+	vvmov [esp-16], 159, 1
+	vvmov [esp-20], 160, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 158, 1
+	vvmov [esp-16], 161, 1
+	vvmov [esp-20], 159, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 162, 1
+	vvmov [esp-16], 160, 1
+	vvmov [esp-20], 163, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 162, 1
+	vvmov [esp-16], 158, 1
+	vvmov [esp-20], 160, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 161, 1
+	vvmov [esp-16], 164, 1
+	vvmov [esp-20], 159, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 161, 1
+	vvmov [esp-16], 165, 1
+	vvmov [esp-20], 164, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 165, 1
+	vvmov [esp-16], 163, 1
+	vvmov [esp-20], 164, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 165, 1
+	vvmov [esp-16], 162, 1
+	vvmov [esp-20], 163, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 160, 1
+	vvmov [esp-16], 164, 1
+	vvmov [esp-20], 163, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 160, 1
+	vvmov [esp-16], 159, 1
+	vvmov [esp-20], 164, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 157, 1
+	vvmov [esp-16], 162, 1
+	vvmov [esp-20], 165, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 157, 1
+	vvmov [esp-16], 156, 1
+	vvmov [esp-20], 162, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 95, 1
+	vvmov [esp-16], 165, 1
+	vvmov [esp-20], 161, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 95, 1
+	vvmov [esp-16], 157, 1
+	vvmov [esp-20], 165, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 156, 1
+	vvmov [esp-16], 158, 1
+	vvmov [esp-20], 162, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 156, 1
+	vvmov [esp-16], 155, 1
+	vvmov [esp-20], 158, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 155, 1
+	vvmov [esp-16], 161, 1
+	vvmov [esp-20], 158, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 155, 1
+	vvmov [esp-16], 95, 1
+	vvmov [esp-20], 161, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 98, 1
+	vvmov [esp-16], 128, 1
+	vvmov [esp-20], 166, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 98, 1
+	vvmov [esp-16], 110, 1
+	vvmov [esp-20], 128, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 126, 1
+	vvmov [esp-16], 166, 1
+	vvmov [esp-20], 167, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 126, 1
+	vvmov [esp-16], 98, 1
+	vvmov [esp-20], 166, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 125, 1
+	vvmov [esp-16], 167, 1
+	vvmov [esp-20], 127, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 125, 1
+	vvmov [esp-16], 126, 1
+	vvmov [esp-20], 167, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 128, 1
+	vvmov [esp-16], 168, 1
+	vvmov [esp-20], 169, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 128, 1
+	vvmov [esp-16], 127, 1
+	vvmov [esp-20], 168, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 167, 1
+	vvmov [esp-16], 170, 1
+	vvmov [esp-20], 171, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 167, 1
+	vvmov [esp-16], 166, 1
+	vvmov [esp-20], 170, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 127, 1
+	vvmov [esp-16], 171, 1
+	vvmov [esp-20], 168, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 127, 1
+	vvmov [esp-16], 167, 1
+	vvmov [esp-20], 171, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 166, 1
+	vvmov [esp-16], 169, 1
+	vvmov [esp-20], 170, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 166, 1
+	vvmov [esp-16], 128, 1
+	vvmov [esp-20], 169, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 169, 1
+	vvmov [esp-16], 172, 1
+	vvmov [esp-20], 173, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 169, 1
+	vvmov [esp-16], 168, 1
+	vvmov [esp-20], 172, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 171, 1
+	vvmov [esp-16], 174, 1
+	vvmov [esp-20], 175, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 171, 1
+	vvmov [esp-16], 170, 1
+	vvmov [esp-20], 174, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 168, 1
+	vvmov [esp-16], 175, 1
+	vvmov [esp-20], 172, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 168, 1
+	vvmov [esp-16], 171, 1
+	vvmov [esp-20], 175, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 170, 1
+	vvmov [esp-16], 173, 1
+	vvmov [esp-20], 174, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 170, 1
+	vvmov [esp-16], 169, 1
+	vvmov [esp-20], 173, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 174, 1
+	vvmov [esp-16], 172, 1
+	vvmov [esp-20], 175, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 174, 1
+	vvmov [esp-16], 173, 1
+	vvmov [esp-20], 172, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 152, 1
+	vvmov [esp-16], 154, 1
+	vvmov [esp-20], 153, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 152, 1
+	vvmov [esp-16], 150, 1
+	vvmov [esp-20], 154, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 152, 1
+	vvmov [esp-16], 151, 1
+	vvmov [esp-20], 150, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 152, 1
+	vvmov [esp-16], 147, 1
+	vvmov [esp-20], 151, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 152, 1
+	vvmov [esp-16], 148, 1
+	vvmov [esp-20], 147, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 152, 1
+	vvmov [esp-16], 149, 1
+	vvmov [esp-20], 148, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 124, 1
+	vvmov [esp-16], 122, 1
+	vvmov [esp-20], 121, 1
+	plea [esp-24], reg_Triangle_1
+	call Triangle__init
+	sub esp, -12
+	plea [esp-16], reg_Triangle_1
+	call ModelManager__add_triangle
+	iimov [esp-12], self
+	add esp, -12
+	vvmov [esp-12], 124, 1
 	vvmov [esp-16], 123, 1
-	vvmov [esp-20], 124, 1
+	vvmov [esp-20], 122, 1
 	plea [esp-24], reg_Triangle_1
 	call Triangle__init
 	sub esp, -12
@@ -7216,13 +7323,13 @@ display PROC USES esi edi
 	vvmov p, 0, 1
 	iimov i, 0
 	L19:
-	iicmp i, 180
+	iicmp i, 360
 	jnl L20
 	iimov j, 0
-	L21:
-	iicmp j, 240
-	jnl L22
-	iimul i, 960, reg_int_1
+	L22:
+	iicmp j, 480
+	jnl L23
+	iimul i, 1920, reg_int_1
 	iimul j, 4, reg_int_2
 	iiadd reg_int_1, reg_int_2, reg_int_1
 	lea esi, color_buffer
@@ -7233,11 +7340,12 @@ display PROC USES esi edi
 	add esi, reg_int_1
 	vvmov char, [esi+0], 1
 	push_render_buffer char, p
-	push_render_buffer char, p
+	L24:
 	iiadd j, 1, j
-	jmp L21
-	L22:
+	jmp L22
+	L23:
 	push_render_buffer 10, p
+	L21:
 	iiadd i, 1, i
 	jmp L19
 	L20:
@@ -7252,38 +7360,389 @@ display ENDP
 clear_buffer PROC USES esi edi
 	local i:DWORD, j:DWORD, reg_int_1:DWORD, reg_int_2:DWORD
 	iimov i, 0
-	L23:
-	iicmp i, 180
-	jnl L24
-	iimov j, 0
 	L25:
-	iicmp j, 240
+	iicmp i, 360
 	jnl L26
-	iimul i, 960, reg_int_1
+	iimov j, 0
+	L28:
+	iicmp j, 480
+	jnl L29
+	iimul i, 1920, reg_int_1
 	iimul j, 4, reg_int_2
 	iiadd reg_int_1, reg_int_2, reg_int_1
 	lea esi, color_buffer
 	add esi, reg_int_1
 	vvmov [esi+0], 0, 1
-	iimul i, 960, reg_int_1
+	iimul i, 1920, reg_int_1
 	iimul j, 4, reg_int_2
 	iiadd reg_int_1, reg_int_2, reg_int_1
 	lea esi, deep_buffer
 	add esi, reg_int_1
 	vvmov [esi+0], 1315859240, 1
+	L30:
 	iiadd j, 1, j
+	jmp L28
+	L29:
+	L27:
+	iiadd i, 1, i
 	jmp L25
 	L26:
-	iiadd i, 1, i
-	jmp L23
-	L24:
 	end_clear_buffer:
 	ret
 clear_buffer ENDP
 
 
+Distortion__init PROC USES esi edi
+	local pos:DWORD, siz:DWORD, type__:DWORD, self:DWORD, reg_float_1:DWORD
+	mov esi, self
+	pvmov [esi+0], pos, 3
+	mov esi, self
+	vvmov [esi+12], siz, 1
+	mov esi, self
+	vvmov [esi+16], 1112014848, 1
+	mov esi, self
+	vvmov [esi+20], 1069547520, 1
+	mov esi, self
+	vvmov [esi+24], type__, 1
+	mov esi, self
+	iicmp [esi+24], 1
+	jne L32
+	mov esi, self
+	ffpow [esi+12], [esi+20], reg_float_1
+	mov esi, self
+	ffadd [esi+12], reg_float_1, reg_float_1
+	mov esi, self
+	vvmov [esi+16], reg_float_1, 1
+	L32:
+	L31:
+	end_Distortion__init:
+	ret
+Distortion__init ENDP
+
+
+Distortion__need PROC USES esi edi
+	local self:DWORD, p:DWORD, ret_0:DWORD, v[3]:DWORD, reg_Vec3_1[3]:DWORD, reg_float_1:DWORD, reg_int_1:DWORD
+	mov esi, self
+	iicmp [esi+24], 0
+	jne L34
+	vpmov ret_0, 0, 1
+	jmp end_Distortion__need
+	jmp L33
+	L34:
+	mov esi, self
+	iicmp [esi+24], 1
+	jne L35
+	mov esi, self
+	plea [esp-12], [esi+0]
+	iimov [esp-16], p
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	vvmov v, reg_Vec3_1, 3
+	plea [esp-12], v
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	mov esi, self
+	ffcmp reg_float_1, [esi+16]
+	jnb L36
+	mov reg_int_1, 1
+	jmp L37
+	L36:
+	mov reg_int_1, 0
+	L37:
+	vpmov ret_0, reg_int_1, 1
+	jmp end_Distortion__need
+	jmp L33
+	L35:
+	mov esi, self
+	iicmp [esi+24], 2
+	jne L38
+	iimov [esp-12], p
+	mov esi, self
+	plea [esp-16], [esi+0]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_1
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	mov esi, self
+	ffsub reg_float_1, [esi+16], reg_float_1
+	vvmov [esp-12], reg_float_1, 1
+	plea [esp-16], reg_float_1
+	call fabs__
+	mov esi, self
+	ffcmp reg_float_1, [esi+12]
+	jnb L39
+	mov reg_int_1, 1
+	jmp L40
+	L39:
+	mov reg_int_1, 0
+	L40:
+	vpmov ret_0, reg_int_1, 1
+	jmp end_Distortion__need
+	jmp L33
+	L38:
+	mov esi, self
+	iicmp [esi+24], 3
+	jne L41
+	mov esi, self
+	mov edi, p
+	ffsub [esi+0], [edi+0], reg_float_1
+	vvmov [esp-12], reg_float_1, 1
+	plea [esp-16], reg_float_1
+	call fabs__
+	mov esi, self
+	ffcmp reg_float_1, [esi+12]
+	jnb L42
+	mov reg_int_1, 1
+	jmp L43
+	L42:
+	mov reg_int_1, 0
+	L43:
+	vpmov ret_0, reg_int_1, 1
+	jmp end_Distortion__need
+	L41:
+	L33:
+	end_Distortion__need:
+	ret
+Distortion__need ENDP
+
+
+Distortion__update PROC USES esi edi
+	local self:DWORD, nx:DWORD, reg_float_1:DWORD, reg_Vec3_1[3]:DWORD, reg_int_1:DWORD, reg_int_2:DWORD
+	mov esi, self
+	iicmp [esi+24], 1
+	jne L45
+	lea esi, player
+	ffsub [esi+20], 1120403456, reg_float_1
+	mov esi, self
+	ffsub reg_float_1, [esi+16], reg_float_1
+	vvmov [esp-12], reg_float_1, 1
+	lea esi, player
+	ffmul 1063675494, [esi+0], reg_float_1
+	lea esi, engine
+	ffmul reg_float_1, [esi+4], reg_float_1
+	mov esi, self
+	ffadd [esi+0], reg_float_1, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	plea [esp-20], reg_float_1
+	call max2f
+	vvmov nx, reg_float_1, 1
+	vvmov [esp-12], nx, 1
+	lea esi, player
+	vvmov [esp-16], [esi+24], 1
+	vvmov [esp-20], 1109393408, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	mov esi, self
+	vvmov [esi+0], reg_Vec3_1, 3
+	jmp L44
+	L45:
+	mov esi, self
+	iicmp [esi+24], 2
+	jne L46
+	lea esi, engine
+	ffmul 1092616192, [esi+4], reg_float_1
+	mov esi, self
+	ffadd [esi+16], reg_float_1, reg_float_1
+	mov esi, self
+	vvmov [esi+16], reg_float_1, 1
+	mov esi, self
+	ffcmp [esi+16], 1140457472
+	jna L48
+	mov esi, self
+	fimov reg_int_1, [esi+16]
+	mov esi, self
+	vvmov [esi+24], 0, 1
+	L48:
+	L47:
+	jmp L44
+	L46:
+	mov esi, self
+	iicmp [esi+24], 3
+	jne L49
+	lea esi, engine
+	ffmul 1128792064, [esi+4], reg_float_1
+	mov esi, self
+	ffadd [esi+0], reg_float_1, reg_float_1
+	mov esi, self
+	vvmov [esi+0], reg_float_1, 1
+	mov esi, self
+	lea edi, player
+	ffsub [esi+0], [edi+20], reg_float_1
+	ffcmp reg_float_1, 1148846080
+	jna L51
+	fimov reg_int_2, reg_float_1
+	mov esi, self
+	vvmov [esi+24], 0, 1
+	L51:
+	L50:
+	L49:
+	L44:
+	end_Distortion__update:
+	ret
+Distortion__update ENDP
+
+
+Distortion__distort PROC USES esi edi
+	local self:DWORD, p:DWORD, ret_0:DWORD, v[3]:DWORD, reg_Vec3_1[3]:DWORD, d:DWORD, reg_float_1:DWORD, x:DWORD, reg_int_1:DWORD, reg_int_2:DWORD, k:DWORD, t:DWORD, reg_float_2:DWORD
+	local reg_int_3:DWORD, h:DWORD
+	mov esi, self
+	iicmp [esi+24], 1
+	jne L53
+	mov esi, self
+	plea [esp-12], [esi+0]
+	iimov [esp-16], p
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	vvmov v, reg_Vec3_1, 3
+	plea [esp-12], v
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	vvmov d, reg_float_1, 1
+	mov esi, self
+	ffpow [esi+12], [esi+20], reg_float_1
+	ffsub d, reg_float_1, reg_float_1
+	vvmov x, reg_float_1, 1
+	iicmp 0 , x
+	jnl L55
+	mov esi, self
+	ffcmp x, [esi+12]
+	jnb L55
+	fimov reg_int_1, x
+	plea [esp-12], v
+	mov esi, self
+	ffsub [esi+12], x, reg_float_1
+	mov esi, self
+	ffpow reg_float_1, [esi+20], reg_float_1
+	ffdiv reg_float_1, d, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mulc
+	vpmov ret_0, reg_Vec3_1, 3
+	jmp end_Distortion__distort
+	jmp L54
+	L55:
+	mov esi, self
+	plea [esp-12], [esi+0]
+	iimov [esp-16], p
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	vpmov ret_0, reg_Vec3_1, 3
+	jmp end_Distortion__distort
+	L54:
+	jmp L52
+	L53:
+	mov esi, self
+	iicmp [esi+24], 2
+	jne L56
+	iimov [esp-12], p
+	mov esi, self
+	plea [esp-16], [esi+0]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	vvmov v, reg_Vec3_1, 3
+	plea [esp-12], v
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	vvmov d, reg_float_1, 1
+	mov esi, self
+	ffsub d, [esi+16], reg_float_1
+	vvmov x, reg_float_1, 1
+	vvmov [esp-12], x, 1
+	plea [esp-16], reg_float_1
+	call fabs__
+	mov esi, self
+	ffcmp reg_float_1, [esi+12]
+	jnb L58
+	fimov reg_int_2, reg_float_1
+	vvmov k, 1060320051, 1
+	ffdiv x, 1073741824, reg_float_1
+	mov esi, self
+	ffdiv reg_float_1, [esi+12], reg_float_1
+	ffmul reg_float_1, 1078530010, reg_float_1
+	vvmov [esp-12], reg_float_1, 1
+	plea [esp-16], reg_float_1
+	call cos
+	mov esi, self
+	ffmul [esi+12], reg_float_1, reg_float_1
+	ffpow reg_float_1, k, reg_float_1
+	ffsub k, 1065353216, reg_float_2
+	mov esi, self
+	ffpow [esi+12], reg_float_2, reg_float_2
+	ffdiv reg_float_1, reg_float_2, reg_float_1
+	mov esi, self
+	ffsub [esi+12], reg_float_1, reg_float_1
+	ffmul reg_float_1, x, reg_float_1
+	vvmov [esp-12], x, 1
+	plea [esp-16], reg_float_2
+	call fabs__
+	ffdiv reg_float_1, reg_float_2, reg_float_1
+	vvmov t, reg_float_1, 1
+	plea [esp-12], v
+	ffsub t, x, reg_float_1
+	ffdiv reg_float_1, d, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mulc
+	vpmov ret_0, reg_Vec3_1, 3
+	jmp end_Distortion__distort
+	jmp L57
+	L58:
+	plea [esp-12], reg_Vec3_1
+	call Vec3_zero
+	vpmov ret_0, reg_Vec3_1, 3
+	jmp end_Distortion__distort
+	L57:
+	jmp L52
+	L56:
+	mov esi, self
+	iicmp [esi+24], 3
+	jne L59
+	mov esi, self
+	mov edi, p
+	ffsub [esi+0], [edi+0], reg_float_1
+	vvmov x, reg_float_1, 1
+	vvmov [esp-12], x, 1
+	plea [esp-16], reg_float_1
+	call fabs__
+	mov esi, self
+	ffcmp reg_float_1, [esi+12]
+	jnb L61
+	fimov reg_int_3, reg_float_1
+	vvmov h, 1106247680, 1
+	ffmul x, 1078530010, reg_float_1
+	mov esi, self
+	ffdiv reg_float_1, [esi+12], reg_float_1
+	vvmov [esp-12], reg_float_1, 1
+	plea [esp-16], reg_float_1
+	call cos
+	ffadd 1065353216, reg_float_1, reg_float_1
+	ffmul reg_float_1, h, reg_float_1
+	ffdiv reg_float_1, 1073741824, reg_float_1
+	vvmov t, reg_float_1, 1
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], t, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	vpmov ret_0, reg_Vec3_1, 3
+	jmp end_Distortion__distort
+	jmp L60
+	L61:
+	plea [esp-12], reg_Vec3_1
+	call Vec3_zero
+	vpmov ret_0, reg_Vec3_1, 3
+	jmp end_Distortion__distort
+	L60:
+	L59:
+	L52:
+	end_Distortion__distort:
+	ret
+Distortion__distort ENDP
+
+
 Camera__init PROC USES esi edi
-	local self:DWORD, reg_Vec3_1[3]:DWORD, reg_Vec3_2[3]:DWORD, reg_Vec3_3[3]:DWORD, reg_Matrix3_1[9]:DWORD, reg_int_1:DWORD, reg_float_1:DWORD
+	local self:DWORD, reg_Vec3_1[3]:DWORD, reg_Vec3_2[3]:DWORD, reg_Vec3_3[3]:DWORD, reg_Matrix3_1[9]:DWORD, reg_int_1:DWORD, reg_float_1:DWORD, i:DWORD
 	vvmov [esp-12], -1027080192, 1
 	vvmov [esp-16], 0, 1
 	vvmov [esp-20], 0, 1
@@ -7329,10 +7788,10 @@ Camera__init PROC USES esi edi
 	sub esp, -12
 	plea [esp-16], reg_Matrix3_1
 	call Camera__set_axis
-	iidiv 240, 2, reg_int_1
+	iidiv 480, 2, reg_int_1
 	ifmov reg_float_1, reg_int_1
 	vvmov [esp-12], reg_float_1, 1
-	iidiv 180, 2, reg_int_1
+	iidiv 360, 2, reg_int_1
 	ifmov reg_float_1, reg_int_1
 	vvmov [esp-16], reg_float_1, 1
 	vvmov [esp-20], 0, 1
@@ -7341,10 +7800,10 @@ Camera__init PROC USES esi edi
 	mov esi, self
 	vvmov [esi+108], reg_Vec3_1, 3
 	mov esi, self
-	ffdiv 1131413504, [esi+12], reg_float_1
+	ffdiv 1139802112, [esi+12], reg_float_1
 	vvmov [esp-12], reg_float_1, 1
 	mov esi, self
-	ffdiv 1127481344, [esi+16], reg_float_1
+	ffdiv 1135869952, [esi+16], reg_float_1
 	vvmov [esp-16], reg_float_1, 1
 	vvmov [esp-20], 1065353216, 1
 	plea [esp-24], reg_Vec3_1
@@ -7368,10 +7827,130 @@ Camera__init PROC USES esi edi
 	mov esi, self
 	vvmov [esi+152], 1053609165, 1
 	mov esi, self
-	vvmov [esi+156], 0, 1
+	vvmov [esi+156], 1008981770, 1
+	mov esi, self
+	vvmov [esi+160], 0, 1
+	mov esi, self
+	vvmov [esi+164], 0, 1
+	mov esi, self
+	vvmov [esi+168], 0, 1
+	mov esi, self
+	vvmov [esi+172], 0, 1
+	mov esi, self
+	vvmov [esi+176], 10, 1
+	iimov i, 0
+	L62:
+	mov esi, self
+	iicmp i, [esi+176]
+	jnl L63
+	iimul i, 28, reg_int_1
+	mov esi, self
+	add esi, reg_int_1
+	vvmov [esi+204], 0, 1
+	L64:
+	iiadd i, 1, i
+	jmp L62
+	L63:
 	end_Camera__init:
 	ret
 Camera__init ENDP
+
+
+Camera__add_distortion PROC USES esi edi
+	local self:DWORD, d:DWORD, i:DWORD, reg_int_1:DWORD, reg_int_2:DWORD
+	iimov i, 0
+	L65:
+	mov esi, self
+	iicmp i, [esi+176]
+	jnl L66
+	iimul i, 28, reg_int_1
+	mov esi, self
+	add esi, reg_int_1
+	iicmp [esi+204], 0
+	jne L69
+	iimul i, 28, reg_int_2
+	mov esi, self
+	add esi, reg_int_2
+	pvmov [esi+180], d, 7
+	jmp end_Camera__add_distortion
+	L69:
+	L68:
+	L67:
+	iiadd i, 1, i
+	jmp L65
+	L66:
+	end_Camera__add_distortion:
+	ret
+Camera__add_distortion ENDP
+
+
+Camera__need_distort PROC USES esi edi
+	local self:DWORD, p:DWORD, ret_0:DWORD, i:DWORD, reg_int_1:DWORD, reg_int_2:DWORD
+	iimov i, 0
+	L70:
+	mov esi, self
+	iicmp i, [esi+176]
+	jnl L71
+	iimul i, 28, reg_int_1
+	mov esi, self
+	add esi, reg_int_1
+	plea [esp-12], [esi+180]
+	iimov [esp-16], p
+	plea [esp-20], reg_int_2
+	call Distortion__need
+	iicmp reg_int_2, 1
+	jne L74
+	vpmov ret_0, 1, 1
+	jmp end_Camera__need_distort
+	L74:
+	L73:
+	L72:
+	iiadd i, 1, i
+	jmp L70
+	L71:
+	vpmov ret_0, 0, 1
+	jmp end_Camera__need_distort
+	end_Camera__need_distort:
+	ret
+Camera__need_distort ENDP
+
+
+Camera__distort PROC USES esi edi
+	local self:DWORD, p:DWORD, ret_0:DWORD, r[3]:DWORD, i:DWORD, reg_int_1:DWORD, reg_int_2:DWORD, reg_Vec3_1[3]:DWORD
+	pvmov r, p, 3
+	iimov i, 0
+	L75:
+	mov esi, self
+	iicmp i, [esi+176]
+	jnl L76
+	iimul i, 28, reg_int_1
+	mov esi, self
+	add esi, reg_int_1
+	iicmp [esi+204], 0
+	jng L79
+	iimul i, 28, reg_int_2
+	mov esi, self
+	add esi, reg_int_2
+	plea [esp-12], [esi+180]
+	iimov [esp-16], p
+	plea [esp-20], reg_Vec3_1
+	call Distortion__distort
+	plea [esp-12], r
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	vvmov r, reg_Vec3_1, 3
+	L79:
+	L78:
+	L77:
+	iiadd i, 1, i
+	jmp L75
+	L76:
+	vpmov ret_0, r, 3
+	jmp end_Camera__distort
+	end_Camera__distort:
+	ret
+Camera__distort ENDP
 
 
 Camera__set_axis PROC USES esi edi
@@ -7393,7 +7972,7 @@ Camera__set_axis PROC USES esi edi
 	plea [esp-12], [esi+0]
 	plea [esp-16], reg_Vec3_1
 	plea [esp-20], reg_Vec3_1
-	call Vec3__sub
+	call Vec3__add
 	mov esi, self
 	vvmov [esi+24], reg_Vec3_1, 3
 	end_Camera__set_axis:
@@ -7420,7 +7999,7 @@ Camera__set_inv_axis PROC USES esi edi
 	plea [esp-12], [esi+0]
 	plea [esp-16], reg_Vec3_1
 	plea [esp-20], reg_Vec3_1
-	call Vec3__sub
+	call Vec3__add
 	mov esi, self
 	vvmov [esi+24], reg_Vec3_1, 3
 	end_Camera__set_inv_axis:
@@ -7429,55 +8008,441 @@ Camera__set_inv_axis ENDP
 
 
 Camera__render PROC USES esi edi
-	local self:DWORD, i:DWORD, reg_int_1:DWORD
+	local self:DWORD, i:DWORD, reg_int_1:DWORD, tri[3]:DWORD, p0[3]:DWORD, p1[3]:DWORD, p2[3]:DWORD, bound__[3]:DWORD, bound_r:DWORD, reg_int_2:DWORD, reg_float_1:DWORD, bound_x:DWORD, reg_Vec3_1[3]:DWORD
+	local reg_int_3:DWORD, reg_Vec3_2[3]:DWORD, reg_int_4:DWORD, reg_int_5:DWORD, reg_Vec3_3[3]:DWORD, reg_int_6:DWORD, reg_int_7:DWORD, reg_int_8:DWORD, reg_int_9:DWORD, l0:DWORD, reg_Vec3_4[3]:DWORD, l1:DWORD, l2:DWORD
+	local reg_int_10:DWORD, reg_int_11:DWORD, reg_int_12:DWORD, reg_int_13:DWORD, reg_int_14:DWORD, reg_int_15:DWORD
+	iimov [esp-12], self
+	call Camera___shake
+	iimov i, 0
+	L80:
+	mov esi, self
+	iicmp i, [esi+176]
+	jnl L81
+	iimul i, 28, reg_int_1
+	mov esi, self
+	add esi, reg_int_1
+	plea [esp-12], [esi+180]
+	call Distortion__update
+	L82:
+	iiadd i, 1, i
+	jmp L80
+	L81:
 	call clear_buffer
 	iimov i, 0
-	L27:
+	L83:
 	iicmp i, n_triangles
-	jnl L28
-	iimov [esp-12], self
+	jnl L84
 	iimul i, 12, reg_int_1
 	lea esi, triangles
 	add esi, reg_int_1
-	plea [esp-16], [esi+0]
+	vvmov tri, [esi+0], 3
+	lea esi, tri
+	iimul [esi+0], 12, reg_int_1
+	lea esi, vertices
+	add esi, reg_int_1
+	vvmov p0, [esi+0], 3
+	lea esi, tri
+	iimul [esi+4], 12, reg_int_1
+	lea esi, vertices
+	add esi, reg_int_1
+	vvmov p1, [esi+0], 3
+	lea esi, tri
+	iimul [esi+8], 12, reg_int_1
+	lea esi, vertices
+	add esi, reg_int_1
+	vvmov p2, [esi+0], 3
+	iimul 0, 28, reg_int_1
+	mov esi, self
+	add esi, reg_int_1
+	vvmov bound__, [esi+180], 3
+	iimul 0, 28, reg_int_1
+	iimul 0, 28, reg_int_2
+	mov esi, self
+	add esi, reg_int_1
+	ffsub [esi+196], [esi+192], reg_float_1
+	vvmov bound_r, reg_float_1, 1
+	lea esi, bound__
+	vvmov bound_x, [esi+0], 1
+	lea esi, p0
+	ffcmp [esi+0], bound_x
+	jb L88
+	lea esi, p0
+	fimov reg_int_1, [esi+0]
+	plea [esp-12], p0
+	plea [esp-16], bound__
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_1
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	ffcmp reg_float_1, bound_r
+	jb L88
+	fimov reg_int_2, reg_float_1
+	jmp L87
+	L88:
+	lea esi, p1
+	ffcmp [esi+0], bound_x
+	jb L89
+	lea esi, p1
+	fimov reg_int_3, [esi+0]
+	plea [esp-12], p1
+	plea [esp-16], bound__
+	plea [esp-20], reg_Vec3_2
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_2
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	ffcmp reg_float_1, bound_r
+	jb L89
+	fimov reg_int_4, reg_float_1
+	jmp L87
+	L89:
+	lea esi, p2
+	ffcmp [esi+0], bound_x
+	jb L90
+	lea esi, p2
+	fimov reg_int_5, [esi+0]
+	plea [esp-12], p2
+	plea [esp-16], bound__
+	plea [esp-20], reg_Vec3_3
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_3
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	ffcmp reg_float_1, bound_r
+	jb L90
+	fimov reg_int_6, reg_float_1
+	jmp L87
+	L90:
+	jmp L85
+	L87:
+	L86:
+	iimov [esp-12], self
+	plea [esp-16], p0
+	plea [esp-20], reg_int_7
+	call Camera__visible
+	iicmp reg_int_7, 0 
+	jne L92
+	iimov [esp-12], self
+	plea [esp-16], p1
+	plea [esp-20], reg_int_8
+	call Camera__visible
+	iicmp reg_int_8, 0 
+	jne L92
+	iimov [esp-12], self
+	plea [esp-16], p2
+	plea [esp-20], reg_int_9
+	call Camera__visible
+	iicmp reg_int_9, 0
+	jne L92
+	jmp L85
+	L92:
+	L91:
+	plea [esp-12], p1
+	plea [esp-16], p2
+	plea [esp-20], reg_Vec3_4
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_4
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	vvmov l0, reg_float_1, 1
+	plea [esp-12], p0
+	plea [esp-16], p2
+	plea [esp-20], reg_Vec3_4
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_4
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	vvmov l1, reg_float_1, 1
+	plea [esp-12], p0
+	plea [esp-16], p1
+	plea [esp-20], reg_Vec3_4
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_4
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	vvmov l2, reg_float_1, 1
+	iimov [esp-12], self
+	plea [esp-16], p0
+	plea [esp-20], reg_int_10
+	call Camera__need_distort
+	iicmp reg_int_10, 1 
+	je L94
+	iimov [esp-12], self
+	plea [esp-16], p1
+	plea [esp-20], reg_int_11
+	call Camera__need_distort
+	iicmp reg_int_11, 1 
+	je L94
+	iimov [esp-12], self
+	plea [esp-16], p2
+	plea [esp-20], reg_int_12
+	call Camera__need_distort
+	jmp L95
+	L94:
+	ffcmp l0, l1
+	jna L97
+	fimov reg_int_13, l0
+	ffcmp l0, l2
+	jna L97
+	fimov reg_int_14, l0
+	iimov [esp-12], self
+	plea [esp-16], p0
+	plea [esp-20], p1
+	plea [esp-24], p2
+	call Camera__seperate_triangle
+	jmp L96
+	L97:
+	ffcmp l1, l2
+	jna L98
+	fimov reg_int_15, l1
+	iimov [esp-12], self
+	plea [esp-16], p1
+	plea [esp-20], p2
+	plea [esp-24], p0
+	call Camera__seperate_triangle
+	jmp L96
+	L98:
+	iimov [esp-12], self
+	plea [esp-16], p2
+	plea [esp-20], p0
+	plea [esp-24], p1
+	call Camera__seperate_triangle
+	L96:
+	jmp L93
+	L95:
+	iimov [esp-12], self
+	plea [esp-16], p2
+	plea [esp-20], p1
+	plea [esp-24], p0
 	call Camera__render_triangle
+	L93:
+	L85:
 	iiadd i, 1, i
-	jmp L27
-	L28:
+	jmp L83
+	L84:
 	end_Camera__render:
 	ret
 Camera__render ENDP
 
 
-Camera__render_triangle PROC USES esi edi
-	local self:DWORD, tri:DWORD, reg_int_1:DWORD, t1:DWORD, t2:DWORD, t3:DWORD, gp1[3]:DWORD, gp2[3]:DWORD, gp3[3]:DWORD, v1[3]:DWORD, v2[3]:DWORD, v3[3]:DWORD, reg_int_2:DWORD
-	local reg_int_3:DWORD, N[3]:DWORD, reg_Vec3_1[3]:DWORD, reg_Vec3_2[3]:DWORD, d1:DWORD, reg_float_1:DWORD, d2:DWORD, d3:DWORD, p1[3]:DWORD, p2[3]:DWORD, p3[3]:DWORD, wf:DWORD, reg_float_2:DWORD
-	local reg_float_3:DWORD, _light:DWORD, X1:DWORD, reg_int_4:DWORD, X2:DWORD, X3:DWORD, Y1:DWORD, Y2:DWORD, Y3:DWORD, DX12:DWORD, DX23:DWORD, DX31:DWORD, DY12:DWORD
-	local DY23:DWORD, DY31:DWORD, FDX12:DWORD, FDX23:DWORD, FDX31:DWORD, FDY12:DWORD, FDY23:DWORD, FDY31:DWORD, minx:DWORD, maxx:DWORD, miny:DWORD, maxy:DWORD, C1:DWORD
-	local reg_int_5:DWORD, C2:DWORD, C3:DWORD, CY2:DWORD, CY1:DWORD, CY3:DWORD, y:DWORD, CX1:DWORD, CX2:DWORD, CX3:DWORD, x:DWORD, w1:DWORD, w2:DWORD
-	local w3:DWORD, d:DWORD, reg_float_4:DWORD, reg_float_5:DWORD, v[3]:DWORD, h[3]:DWORD, light:DWORD, color:DWORD, reg_int_6:DWORD, reg_int_7:DWORD
+Camera__seperate_triangle PROC USES esi edi
+	local self:DWORD, p0:DWORD, p1:DWORD, p2:DWORD, p[3]:DWORD, reg_Vec3_1[3]:DWORD, reg_Vec3_2[3]:DWORD, reg_float_1:DWORD, reg_float_2:DWORD, reg_int_1:DWORD, reg_Vec3_3[3]:DWORD, reg_Vec3_4[3]:DWORD, reg_Vec3_5[3]:DWORD
+	iimov [esp-12], p1
+	iimov [esp-16], p2
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	plea [esp-12], reg_Vec3_1
+	vvmov [esp-16], 1056964608, 1
+	plea [esp-20], reg_Vec3_2
+	call Vec3__mulc
+	vvmov p, reg_Vec3_2, 3
+	iimov [esp-12], p1
+	iimov [esp-16], p2
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_1
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	plea [esp-12], p
 	mov esi, self
-	iiadd [esi+156], 3, reg_int_1
+	plea [esp-16], [esi+0]
+	plea [esp-20], reg_Vec3_2
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_2
+	plea [esp-16], reg_float_2
+	call Vec3__length
 	mov esi, self
-	vvmov [esi+156], reg_int_1, 1
-	mov esi, tri
-	iimul [esi+0], 12, reg_int_1
-	lea esi, vertices
-	add esi, reg_int_1
-	vvmov v1, [esi+0], 3
-	mov esi, tri
-	iimul [esi+4], 12, reg_int_1
-	lea esi, vertices
-	add esi, reg_int_1
-	vvmov v2, [esi+0], 3
-	mov esi, tri
-	iimul [esi+8], 12, reg_int_1
-	lea esi, vertices
-	add esi, reg_int_1
-	vvmov v3, [esi+0], 3
+	ffmul reg_float_2, [esi+156], reg_float_2
+	ffcmp reg_float_1, reg_float_2
+	jnb L100
+	fimov reg_int_1, reg_float_1
+	iimov [esp-12], self
+	add esp, -12
+	iimov [esp-12], self
+	iimov [esp-16], p2
+	plea [esp-20], reg_Vec3_3
+	call Camera__distort
+	sub esp, -12
+	plea [esp-16], reg_Vec3_3
+	add esp, -16
+	iimov [esp-12], self
+	iimov [esp-16], p1
+	plea [esp-20], reg_Vec3_4
+	call Camera__distort
+	sub esp, -16
+	plea [esp-20], reg_Vec3_4
+	add esp, -20
+	iimov [esp-12], self
+	iimov [esp-16], p0
+	plea [esp-20], reg_Vec3_5
+	call Camera__distort
+	sub esp, -20
+	plea [esp-24], reg_Vec3_5
+	call Camera__render_triangle
+	jmp L99
+	L100:
+	iimov [esp-12], self
+	plea [esp-16], p
+	iimov [esp-20], p0
+	iimov [esp-24], p1
+	call Camera__seperate_triangle
+	iimov [esp-12], self
+	plea [esp-16], p
+	iimov [esp-20], p2
+	iimov [esp-24], p0
+	call Camera__seperate_triangle
+	L99:
+	end_Camera__seperate_triangle:
+	ret
+Camera__seperate_triangle ENDP
+
+
+Camera__visible PROC USES esi edi
+	local self:DWORD, p:DWORD, ret_0:DWORD, t:DWORD, gp[3]:DWORD, cp[3]:DWORD, reg_Vec3_1[3]:DWORD, x:DWORD, reg_int_1:DWORD, y:DWORD, reg_int_2:DWORD
 	mov esi, self
 	plea [esp-12], [esi+0]
-	plea [esp-16], v1
+	iimov [esp-16], p
+	mov esi, self
+	plea [esp-20], [esi+24]
+	mov esi, self
+	plea [esp-24], [esi+96]
+	plea [esp-28], t
+	plea [esp-32], gp
+	call rayPlaneIntersect
+	mov esi, self
+	plea [esp-12], [esi+72]
+	add esp, -12
+	plea [esp-12], gp
+	mov esi, self
+	plea [esp-16], [esi+24]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Matrix3__transform
+	plea [esp-12], reg_Vec3_1
+	mov esi, self
+	plea [esp-16], [esi+120]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mul
+	plea [esp-12], reg_Vec3_1
+	mov esi, self
+	plea [esp-16], [esi+108]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	vvmov cp, reg_Vec3_1, 3
+	lea esi, cp
+	fimov reg_int_1, [esi+0]
+	vvmov x, reg_int_1, 1
+	lea esi, cp
+	fimov reg_int_1, [esi+4]
+	vvmov y, reg_int_1, 1
+	iicmp x, 0 
+	jl L101
+	iicmp x, 480
+	jnl L101
+	iicmp y, 0 
+	jl L101
+	iicmp y, 360
+	jnl L101
+	ffcmp t, 0
+	jna L101
+	fimov reg_int_1, t
+	mov reg_int_2, 1
+	jmp L102
+	L101:
+	mov reg_int_2, 0
+	L102:
+	vpmov ret_0, reg_int_2, 1
+	jmp end_Camera__visible
+	end_Camera__visible:
+	ret
+Camera__visible ENDP
+
+
+Camera__shake PROC USES esi edi
+	local self:DWORD, magnitude:DWORD, duration:DWORD
+	mov esi, self
+	lea edi, engine
+	vvmov [esi+160], [edi+8], 1
+	mov esi, self
+	vvmov [esi+164], magnitude, 1
+	mov esi, self
+	vvmov [esi+168], duration, 1
+	end_Camera__shake:
+	ret
+Camera__shake ENDP
+
+
+Camera___shake PROC USES esi edi
+	local self:DWORD, t:DWORD, reg_float_1:DWORD, reg_int_1:DWORD, k:DWORD, reg_Vec3_1[3]:DWORD
+	lea esi, engine
+	mov edi, self
+	ffsub [esi+8], [edi+160], reg_float_1
+	vvmov t, reg_float_1, 1
+	mov esi, self
+	ffcmp t, [esi+168]
+	ja L104
+	fimov reg_int_1, t
+	mov esi, self
+	ffmul [esi+164], t, reg_float_1
+	mov esi, self
+	ffdiv reg_float_1, [esi+168], reg_float_1
+	vvmov k, reg_float_1, 1
+	ffsub 0, k, reg_float_1
+	vvmov [esp-12], reg_float_1, 1
+	vvmov [esp-16], k, 1
+	plea [esp-20], reg_float_1
+	call rand
+	vvmov [esp-12], reg_float_1, 1
+	ffsub 0, k, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	vvmov [esp-16], k, 1
+	plea [esp-20], reg_float_1
+	call rand
+	sub esp, -12
+	vvmov [esp-16], reg_float_1, 1
+	ffsub 0, k, reg_float_1
+	add esp, -16
+	vvmov [esp-12], reg_float_1, 1
+	vvmov [esp-16], k, 1
+	plea [esp-20], reg_float_1
+	call rand
+	sub esp, -16
+	vvmov [esp-20], reg_float_1, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	mov esi, self
+	plea [esp-12], [esi+0]
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	mov esi, self
+	vvmov [esi+0], reg_Vec3_1, 3
+	L104:
+	L103:
+	end_Camera___shake:
+	ret
+Camera___shake ENDP
+
+
+Camera__render_triangle PROC USES esi edi
+	local self:DWORD, v1:DWORD, v2:DWORD, v3:DWORD, reg_int_1:DWORD, t1:DWORD, t2:DWORD, t3:DWORD, gp1[3]:DWORD, gp2[3]:DWORD, gp3[3]:DWORD, reg_int_2:DWORD, reg_int_3:DWORD
+	local N[3]:DWORD, reg_Vec3_1[3]:DWORD, reg_Vec3_2[3]:DWORD, d1:DWORD, reg_float_1:DWORD, d2:DWORD, d3:DWORD, p1[3]:DWORD, p2[3]:DWORD, p3[3]:DWORD, wf:DWORD, reg_float_2:DWORD, reg_float_3:DWORD
+	local _light:DWORD, X1:DWORD, reg_int_4:DWORD, X2:DWORD, X3:DWORD, Y1:DWORD, Y2:DWORD, Y3:DWORD, DX12:DWORD, DX23:DWORD, DX31:DWORD, DY12:DWORD, DY23:DWORD
+	local DY31:DWORD, FDX12:DWORD, FDX23:DWORD, FDX31:DWORD, FDY12:DWORD, FDY23:DWORD, FDY31:DWORD, minx:DWORD, maxx:DWORD, miny:DWORD, maxy:DWORD, C1:DWORD, reg_int_5:DWORD
+	local C2:DWORD, C3:DWORD, CY2:DWORD, CY1:DWORD, CY3:DWORD, y:DWORD, CX1:DWORD, CX2:DWORD, CX3:DWORD, x:DWORD, w1:DWORD, w2:DWORD, w3:DWORD
+	local d:DWORD, reg_float_4:DWORD, reg_float_5:DWORD, v[3]:DWORD, h[3]:DWORD, light:DWORD, color:DWORD, reg_int_6:DWORD, reg_int_7:DWORD
+	mov esi, self
+	iiadd [esi+172], 3, reg_int_1
+	mov esi, self
+	vvmov [esi+172], reg_int_1, 1
+	mov esi, self
+	plea [esp-12], [esi+0]
+	iimov [esp-16], v1
 	mov esi, self
 	plea [esp-20], [esi+24]
 	mov esi, self
@@ -7487,7 +8452,7 @@ Camera__render_triangle PROC USES esi edi
 	call rayPlaneIntersect
 	mov esi, self
 	plea [esp-12], [esi+0]
-	plea [esp-16], v2
+	iimov [esp-16], v2
 	mov esi, self
 	plea [esp-20], [esi+24]
 	mov esi, self
@@ -7497,7 +8462,7 @@ Camera__render_triangle PROC USES esi edi
 	call rayPlaneIntersect
 	mov esi, self
 	plea [esp-12], [esi+0]
-	plea [esp-16], v3
+	iimov [esp-16], v3
 	mov esi, self
 	plea [esp-20], [esi+24]
 	mov esi, self
@@ -7506,27 +8471,27 @@ Camera__render_triangle PROC USES esi edi
 	plea [esp-32], gp3
 	call rayPlaneIntersect
 	ffcmp t1, 0
-	jb L30
+	jb L106
 	fimov reg_int_1, t1
 	ffcmp t2, 0
-	jb L30
+	jb L106
 	fimov reg_int_2, t2
 	ffcmp t3, 0
-	jb L30
+	jb L106
 	fimov reg_int_3, t3
-	jmp L31
-	L30:
+	jmp L107
+	L106:
 	jmp end_Camera__render_triangle
-	L31:
-	L29:
-	plea [esp-12], v2
-	plea [esp-16], v1
+	L107:
+	L105:
+	iimov [esp-12], v2
+	iimov [esp-16], v1
 	plea [esp-20], reg_Vec3_1
 	call Vec3__sub
 	plea [esp-12], reg_Vec3_1
 	add esp, -12
-	plea [esp-12], v3
-	plea [esp-16], v1
+	iimov [esp-12], v3
+	iimov [esp-16], v1
 	plea [esp-20], reg_Vec3_2
 	call Vec3__sub
 	sub esp, -12
@@ -7537,7 +8502,7 @@ Camera__render_triangle PROC USES esi edi
 	plea [esp-16], reg_Vec3_2
 	call Vec3__norm
 	vvmov N, reg_Vec3_2, 3
-	plea [esp-12], v1
+	iimov [esp-12], v1
 	mov esi, self
 	plea [esp-16], [esi+0]
 	plea [esp-20], reg_Vec3_1
@@ -7546,7 +8511,7 @@ Camera__render_triangle PROC USES esi edi
 	plea [esp-16], reg_float_1
 	call Vec3__length
 	vvmov d1, reg_float_1, 1
-	plea [esp-12], v2
+	iimov [esp-12], v2
 	mov esi, self
 	plea [esp-16], [esi+0]
 	plea [esp-20], reg_Vec3_1
@@ -7555,7 +8520,7 @@ Camera__render_triangle PROC USES esi edi
 	plea [esp-16], reg_float_1
 	call Vec3__length
 	vvmov d2, reg_float_1, 1
-	plea [esp-12], v3
+	iimov [esp-12], v3
 	mov esi, self
 	plea [esp-16], [esi+0]
 	plea [esp-20], reg_Vec3_1
@@ -7752,7 +8717,7 @@ Camera__render_triangle PROC USES esi edi
 	vvmov minx, reg_int_4, 1
 	iiadd maxx, 1, reg_int_4
 	vvmov [esp-12], reg_int_4, 1
-	vvmov [esp-16], 240, 1
+	vvmov [esp-16], 480, 1
 	plea [esp-20], reg_int_4
 	call min2i
 	vvmov maxx, reg_int_4, 1
@@ -7763,7 +8728,7 @@ Camera__render_triangle PROC USES esi edi
 	vvmov miny, reg_int_4, 1
 	iiadd maxy, 1, reg_int_4
 	vvmov [esp-12], reg_int_4, 1
-	vvmov [esp-16], 180, 1
+	vvmov [esp-16], 360, 1
 	plea [esp-20], reg_int_4
 	call min2i
 	vvmov maxy, reg_int_4, 1
@@ -7780,41 +8745,41 @@ Camera__render_triangle PROC USES esi edi
 	iisub reg_int_4, reg_int_5, reg_int_4
 	vvmov C3, reg_int_4, 1
 	iicmp DY12, 0 
-	jl L33
+	jl L109
 	iicmp DY12, 0 
-	jne L35
+	jne L111
 	iicmp DX12, 0
-	jng L35
-	jmp L35
-	L33:
+	jng L111
+	jmp L111
+	L109:
 	iiadd C1, 1, reg_int_4
 	vvmov C1, reg_int_4, 1
-	L35:
-	L32:
+	L111:
+	L108:
 	iicmp DY23, 0 
-	jl L37
+	jl L113
 	iicmp DY23, 0 
-	jne L39
+	jne L115
 	iicmp DX23, 0
-	jng L39
-	jmp L39
-	L37:
+	jng L115
+	jmp L115
+	L113:
 	iiadd C2, 1, reg_int_4
 	vvmov C2, reg_int_4, 1
-	L39:
-	L36:
+	L115:
+	L112:
 	iicmp DY31, 0 
-	jl L41
+	jl L117
 	iicmp DY31, 0 
-	jne L43
+	jne L119
 	iicmp DX31, 0
-	jng L43
-	jmp L43
-	L41:
+	jng L119
+	jmp L119
+	L117:
 	iiadd C3, 1, reg_int_4
 	vvmov C3, reg_int_4, 1
-	L43:
-	L40:
+	L119:
+	L116:
 	iishl miny, 4, reg_int_4
 	iimul DX23, reg_int_4, reg_int_4
 	iiadd C2, reg_int_4, reg_int_4
@@ -7837,22 +8802,22 @@ Camera__render_triangle PROC USES esi edi
 	iisub reg_int_4, reg_int_5, reg_int_4
 	vvmov CY3, reg_int_4, 1
 	iimov y, miny
-	L44:
+	L120:
 	iicmp y, maxy
-	jnl L45
+	jnl L121
 	vvmov CX1, CY1, 1
 	vvmov CX2, CY2, 1
 	vvmov CX3, CY3, 1
 	iimov x, minx
-	L46:
+	L123:
 	iicmp x, maxx
-	jnl L47
+	jnl L124
 	iicmp CX1, 0 
-	jng L49
+	jng L127
 	iicmp CX2, 0 
-	jng L49
+	jng L127
 	iicmp CX3, 0
-	jng L49
+	jng L127
 	lea esi, p2
 	lea edi, p3
 	ffsub [esi+4], [edi+4], reg_float_1
@@ -7896,38 +8861,38 @@ Camera__render_triangle PROC USES esi edi
 	ffmul w3, d3, reg_float_2
 	ffadd reg_float_1, reg_float_2, reg_float_1
 	vvmov d, reg_float_1, 1
-	iimul y, 960, reg_int_4
+	iimul y, 1920, reg_int_4
 	iimul x, 4, reg_int_5
 	iiadd reg_int_4, reg_int_5, reg_int_4
 	lea esi, deep_buffer
 	add esi, reg_int_4
 	ffcmp d, [esi+0]
-	jnb L51
+	jnb L129
 	fimov reg_int_5, d
-	lea esi, v1
+	mov esi, v1
 	ffmul w1, [esi+0], reg_float_1
-	lea esi, v2
+	mov esi, v2
 	ffmul w2, [esi+0], reg_float_2
 	ffadd reg_float_1, reg_float_2, reg_float_1
-	lea esi, v3
+	mov esi, v3
 	ffmul w3, [esi+0], reg_float_2
 	ffadd reg_float_1, reg_float_2, reg_float_1
 	vvmov [esp-12], reg_float_1, 1
-	lea esi, v1
+	mov esi, v1
 	ffmul w1, [esi+4], reg_float_1
-	lea esi, v2
+	mov esi, v2
 	ffmul w2, [esi+4], reg_float_2
 	ffadd reg_float_1, reg_float_2, reg_float_1
-	lea esi, v3
+	mov esi, v3
 	ffmul w3, [esi+4], reg_float_2
 	ffadd reg_float_1, reg_float_2, reg_float_1
 	vvmov [esp-16], reg_float_1, 1
-	lea esi, v1
+	mov esi, v1
 	ffmul w1, [esi+8], reg_float_1
-	lea esi, v2
+	mov esi, v2
 	ffmul w2, [esi+8], reg_float_2
 	ffadd reg_float_1, reg_float_2, reg_float_1
-	lea esi, v3
+	mov esi, v3
 	ffmul w3, [esi+8], reg_float_2
 	ffadd reg_float_1, reg_float_2, reg_float_1
 	vvmov [esp-20], reg_float_1, 1
@@ -7963,40 +8928,42 @@ Camera__render_triangle PROC USES esi edi
 	ffmul light, 1115684864, reg_float_1
 	fimov reg_int_6, reg_float_1
 	vvmov color, reg_int_6, 1
-	iimul y, 960, reg_int_6
+	iimul y, 1920, reg_int_6
 	iimul x, 4, reg_int_7
 	iiadd reg_int_6, reg_int_7, reg_int_6
 	lea esi, color_buffer
 	add esi, reg_int_6
 	vvmov [esi+0], color, 1
-	iimul y, 960, reg_int_6
+	iimul y, 1920, reg_int_6
 	iimul x, 4, reg_int_7
 	iiadd reg_int_6, reg_int_7, reg_int_6
 	lea esi, deep_buffer
 	add esi, reg_int_6
 	vvmov [esi+0], d, 1
-	L51:
-	L50:
-	L49:
-	L48:
+	L129:
+	L128:
+	L127:
+	L126:
 	iisub CX1, FDY12, reg_int_6
 	vvmov CX1, reg_int_6, 1
 	iisub CX2, FDY23, reg_int_6
 	vvmov CX2, reg_int_6, 1
 	iisub CX3, FDY31, reg_int_6
 	vvmov CX3, reg_int_6, 1
+	L125:
 	iiadd x, 1, x
-	jmp L46
-	L47:
+	jmp L123
+	L124:
 	iiadd CY1, FDX12, reg_int_6
 	vvmov CY1, reg_int_6, 1
 	iiadd CY2, FDX23, reg_int_6
 	vvmov CY2, reg_int_6, 1
 	iiadd CY3, FDX31, reg_int_6
 	vvmov CY3, reg_int_6, 1
+	L122:
 	iiadd y, 1, y
-	jmp L44
-	L45:
+	jmp L120
+	L121:
 	end_Camera__render_triangle:
 	ret
 Camera__render_triangle ENDP
@@ -8036,102 +9003,102 @@ Keyboard__update PROC USES esi edi
 	movzx ebx, ax
 	mov key, ebx
 	iicmp key, 04209
-	jne L52
+	jne L130
 	mov reg_int_1, 1
-	jmp L53
-	L52:
+	jmp L131
+	L130:
 	mov reg_int_1, 0
-	L53:
+	L131:
 	mov esi, self
 	vvmov [esi+0], reg_int_1, 1
 	iicmp key, 04709
-	jne L54
+	jne L132
 	mov reg_int_1, 1
-	jmp L55
-	L54:
+	jmp L133
+	L132:
 	mov reg_int_1, 0
-	L55:
+	L133:
 	mov esi, self
 	vvmov [esi+4], reg_int_1, 1
 	iicmp key, 04471
-	jne L56
+	jne L134
 	mov reg_int_1, 1
-	jmp L57
-	L56:
+	jmp L135
+	L134:
 	mov reg_int_1, 0
-	L57:
+	L135:
 	mov esi, self
 	vvmov [esi+8], reg_int_1, 1
 	iicmp key, 07777
-	jne L58
+	jne L136
 	mov reg_int_1, 1
-	jmp L59
-	L58:
+	jmp L137
+	L136:
 	mov reg_int_1, 0
-	L59:
+	L137:
 	mov esi, self
 	vvmov [esi+12], reg_int_1, 1
 	iicmp key, 08051
-	jne L60
+	jne L138
 	mov reg_int_1, 1
-	jmp L61
-	L60:
+	jmp L139
+	L138:
 	mov reg_int_1, 0
-	L61:
+	L139:
 	mov esi, self
 	vvmov [esi+16], reg_int_1, 1
 	iicmp key, 08292
-	jne L62
+	jne L140
 	mov reg_int_1, 1
-	jmp L63
-	L62:
+	jmp L141
+	L140:
 	mov reg_int_1, 0
-	L63:
+	L141:
 	mov esi, self
 	vvmov [esi+20], reg_int_1, 1
 	iicmp key, 18432
-	jne L64
+	jne L142
 	mov reg_int_1, 1
-	jmp L65
-	L64:
+	jmp L143
+	L142:
 	mov reg_int_1, 0
-	L65:
+	L143:
 	mov esi, self
 	vvmov [esi+24], reg_int_1, 1
 	iicmp key, 20480
-	jne L66
+	jne L144
 	mov reg_int_1, 1
-	jmp L67
-	L66:
+	jmp L145
+	L144:
 	mov reg_int_1, 0
-	L67:
+	L145:
 	mov esi, self
 	vvmov [esi+28], reg_int_1, 1
 	iicmp key, 19200
-	jne L68
+	jne L146
 	mov reg_int_1, 1
-	jmp L69
-	L68:
+	jmp L147
+	L146:
 	mov reg_int_1, 0
-	L69:
+	L147:
 	mov esi, self
 	vvmov [esi+32], reg_int_1, 1
 	iicmp key, 19712
-	jne L70
+	jne L148
 	mov reg_int_1, 1
-	jmp L71
-	L70:
+	jmp L149
+	L148:
 	mov reg_int_1, 0
-	L71:
+	L149:
 	mov esi, self
 	vvmov [esi+36], reg_int_1, 1
 	iicmp key, 00283
-	jne L72
+	jne L150
 	mov reg_int_1, 1
-	jmp L73
-	L72:
+	jmp L151
+	L150:
 	mov reg_int_1, 0
-	L73:
+	L151:
 	mov esi, self
 	vvmov [esi+40], reg_int_1, 1
 	end_Keyboard__update:
@@ -8160,11 +9127,11 @@ Keyboard__print ENDP
 Engine__init PROC USES esi edi
 	local self:DWORD, reg_int_1:DWORD
 	mov esi, self
-	vvmov [esi+0], 1098907648, 1
+	vvmov [esi+0], 1065353216, 1
 	plea [esp-12], reg_int_1
 	call get_time
 	mov esi, self
-	vvmov [esi+8], reg_int_1, 1
+	vvmov [esi+12], reg_int_1, 1
 	end_Engine__init:
 	ret
 Engine__init ENDP
@@ -8176,29 +9143,32 @@ Engine__step PROC USES esi edi
 	call get_time
 	ifmov reg_float_1, reg_int_1
 	vvmov t, reg_float_1, 1
-	L74:
+	L152:
 	mov esi, self
-	ifmov reg_float_1, [esi+8]
+	ifmov reg_float_1, [esi+12]
 	ffsub t, reg_float_1, reg_float_1
 	mov esi, self
 	ffcmp reg_float_1, [esi+0]
-	jnb L75
+	jnb L153
 	fimov reg_int_1, reg_float_1
 	plea [esp-12], reg_int_2
 	call get_time
 	ifmov reg_float_1, reg_int_2
 	vvmov t, reg_float_1, 1
-	jmp L74
-	L75:
+	jmp L152
+	L153:
 	mov esi, self
-	ifmov reg_float_1, [esi+8]
+	ifmov reg_float_1, [esi+12]
 	ffsub t, reg_float_1, reg_float_1
 	ffdiv reg_float_1, 1148846080, reg_float_1
 	mov esi, self
 	vvmov [esi+4], reg_float_1, 1
 	fimov reg_int_2, t
 	mov esi, self
-	vvmov [esi+8], reg_int_2, 1
+	vvmov [esi+12], reg_int_2, 1
+	ffdiv t, 1148846080, reg_float_1
+	mov esi, self
+	vvmov [esi+8], reg_float_1, 1
 	plea [esp-12], mm
 	call ModelManager__reset
 	call update
@@ -8223,11 +9193,11 @@ main PROC
 	plea [esp-12], mm
 	call ModelManager__init
 	call init
-	L76:
+	L154:
 	plea [esp-12], engine
 	call Engine__step
-	jmp L76
-	L77:
+	jmp L154
+	L155:
 	call WaitMsg
 	exit
 main ENDP
@@ -8270,14 +9240,84 @@ PD__step PROC USES esi edi
 PD__step ENDP
 
 
-Player__init PROC USES esi edi
-	local self:DWORD, reg_Vec3_1[3]:DWORD, reg_Vec3_2[3]:DWORD, reg_Vec3_3[3]:DWORD, reg_Matrix3_1[9]:DWORD, reg_PD_1[3]:DWORD
-	mov esi, self
-	vvmov [esi+0], 1125515264, 1
+Vec3PD__init PROC USES esi edi
+	local kp:DWORD, kd:DWORD, self:DWORD, reg_Vec3_1[3]:DWORD
 	plea [esp-12], reg_Vec3_1
 	call Vec3_zero
 	mov esi, self
-	vvmov [esi+4], reg_Vec3_1, 3
+	vvmov [esi+0], reg_Vec3_1, 3
+	mov esi, self
+	pvmov [esi+12], kp, 3
+	mov esi, self
+	pvmov [esi+24], kd, 3
+	end_Vec3PD__init:
+	ret
+Vec3PD__init ENDP
+
+
+Vec3PD__step PROC USES esi edi
+	local self:DWORD, p:DWORD, target:DWORD, ret_0:DWORD, err[3]:DWORD, reg_Vec3_1[3]:DWORD, deri[3]:DWORD, reg_float_1:DWORD, reg_Vec3_2[3]:DWORD, y[3]:DWORD
+	iimov [esp-12], target
+	iimov [esp-16], p
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	vvmov err, reg_Vec3_1, 3
+	plea [esp-12], err
+	mov esi, self
+	plea [esp-16], [esi+0]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_1
+	lea esi, engine
+	ffdiv 1065353216, [esi+4], reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	plea [esp-20], reg_Vec3_2
+	call Vec3__mulc
+	vvmov deri, reg_Vec3_2, 3
+	mov esi, self
+	plea [esp-12], [esi+12]
+	plea [esp-16], err
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mul
+	mov esi, self
+	plea [esp-12], [esi+24]
+	plea [esp-16], deri
+	plea [esp-20], reg_Vec3_2
+	call Vec3__mul
+	plea [esp-12], reg_Vec3_1
+	plea [esp-16], reg_Vec3_2
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	vvmov y, reg_Vec3_1, 3
+	mov esi, self
+	vvmov [esi+0], err, 3
+	vpmov ret_0, y, 3
+	jmp end_Vec3PD__step
+	end_Vec3PD__step:
+	ret
+Vec3PD__step ENDP
+
+
+Player__init PROC USES esi edi
+	local self:DWORD, reg_Vec3_1[3]:DWORD, reg_Vec3_2[3]:DWORD, reg_Vec3_3[3]:DWORD, reg_Matrix3_1[9]:DWORD, reg_Vec3PD_1[9]:DWORD, reg_PD_1[3]:DWORD, reg_float_1:DWORD, reg_Distortion_1[7]:DWORD
+	mov esi, self
+	vvmov [esi+0], 1133903872, 1
+	mov esi, self
+	vvmov [esi+4], 1133903872, 1
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], 1092616192, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	mov esi, self
+	vvmov [esi+8], reg_Vec3_1, 3
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], 1092616192, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	mov esi, self
+	vvmov [esi+20], reg_Vec3_1, 3
 	vvmov [esp-12], 0, 1
 	vvmov [esp-16], 0, 1
 	vvmov [esp-20], -1082130432, 1
@@ -8303,147 +9343,398 @@ Player__init PROC USES esi edi
 	plea [esp-24], reg_Matrix3_1
 	call Matrix3__init
 	mov esi, self
-	vvmov [esi+16], reg_Matrix3_1, 9
+	vvmov [esi+32], reg_Matrix3_1, 9
 	vvmov [esp-12], 1077936128, 1
 	vvmov [esp-16], 1077936128, 1
 	vvmov [esp-20], 1077936128, 1
 	plea [esp-24], reg_Vec3_1
 	call Vec3__init
 	mov esi, self
-	vvmov [esi+52], reg_Vec3_1, 3
-	vvmov [esp-12], 1106247680, 1
+	vvmov [esi+68], reg_Vec3_1, 3
+	vvmov [esp-12], 0, 1
 	vvmov [esp-16], 0, 1
-	vvmov [esp-20], 1092616192, 1
+	vvmov [esp-20], -1041235968, 1
 	plea [esp-24], reg_Vec3_1
 	call Vec3__init
 	mov esi, self
-	vvmov [esi+64], reg_Vec3_1, 3
+	vvmov [esi+80], reg_Vec3_1, 3
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	mov esi, self
+	vvmov [esi+92], reg_Vec3_1, 3
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], -1041235968, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	mov esi, self
+	vvmov [esi+104], reg_Vec3_1, 3
+	vvmov [esp-12], 1036831949, 1
+	vvmov [esp-16], 1036831949, 1
+	vvmov [esp-20], 1036831949, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	plea [esp-12], reg_Vec3_1
+	add esp, -12
+	vvmov [esp-12], 1084227584, 1
+	vvmov [esp-16], 1084227584, 1
+	vvmov [esp-20], 1084227584, 1
+	plea [esp-24], reg_Vec3_2
+	call Vec3__init
+	sub esp, -12
+	plea [esp-16], reg_Vec3_2
+	plea [esp-20], reg_Vec3PD_1
+	call Vec3PD__init
+	mov esi, self
+	vvmov [esi+116], reg_Vec3PD_1, 9
 	plea [esp-12], reg_Vec3_1
 	call Vec3_zero
 	mov esi, self
-	vvmov [esi+76], reg_Vec3_1, 3
+	vvmov [esi+152], reg_Vec3_1, 3
 	plea [esp-12], reg_Vec3_1
 	call Vec3_zero
 	mov esi, self
-	vvmov [esi+88], reg_Vec3_1, 3
+	vvmov [esi+164], reg_Vec3_1, 3
 	mov esi, self
-	vvmov [esi+100], 0, 1
+	vvmov [esi+176], 0, 1
 	vvmov [esp-12], 1084227584, 1
 	vvmov [esp-16], 1082130432, 1
 	plea [esp-20], reg_PD_1
 	call PD__init
 	mov esi, self
-	vvmov [esi+104], reg_PD_1, 3
+	vvmov [esi+180], reg_PD_1, 3
+	plea [esp-12], camera
+	mov esi, self
+	ffsub [esi+20], 1176256512, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	plea [esp-12], reg_Vec3_1
+	vvmov [esp-16], 1112014848, 1
+	vvmov [esp-20], 1, 1
+	plea [esp-24], reg_Distortion_1
+	call Distortion__init
+	sub esp, -12
+	plea [esp-16], reg_Distortion_1
+	call Camera__add_distortion
 	end_Player__init:
 	ret
 Player__init ENDP
 
 
+Player__collide PROC USES esi edi
+	local self:DWORD, ret_0:DWORD, w[3]:DWORD, reg_Vec3_1[3]:DWORD, d:DWORD, reg_float_1:DWORD, i:DWORD, reg_int_1:DWORD, t[3]:DWORD, reg_float_2:DWORD, a[3]:DWORD, b[3]:DWORD, c__[3]:DWORD
+	local u[3]:DWORD, dd__:DWORD, j:DWORD, reg_int_2:DWORD, reg_int_3:DWORD
+	mov esi, self
+	plea [esp-12], [esi+8]
+	mov esi, self
+	plea [esp-16], [esi+20]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	vvmov w, reg_Vec3_1, 3
+	plea [esp-12], w
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	vvmov d, reg_float_1, 1
+	fimov reg_int_1, d
+	iimov i, 0
+	L156:
+	iicmp i, reg_int_1
+	jnl L157
+	plea [esp-12], w
+	ifmov reg_float_1, i
+	ffdiv reg_float_1, d, reg_float_2
+	vvmov [esp-16], reg_float_2, 1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mulc
+	mov esi, self
+	plea [esp-12], [esi+20]
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	vvmov t, reg_Vec3_1, 3
+	vvmov [esp-12], 1077420229, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	plea [esp-12], reg_Vec3_1
+	mov esi, self
+	plea [esp-16], [esi+68]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mul
+	plea [esp-12], t
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	vvmov a, reg_Vec3_1, 3
+	vvmov [esp-12], -1073175593, 1
+	vvmov [esp-16], 1079584489, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	plea [esp-12], reg_Vec3_1
+	mov esi, self
+	plea [esp-16], [esi+68]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mul
+	plea [esp-12], t
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	vvmov b, reg_Vec3_1, 3
+	vvmov [esp-12], -1073175593, 1
+	vvmov [esp-16], -1067899159, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	plea [esp-12], reg_Vec3_1
+	mov esi, self
+	plea [esp-16], [esi+68]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mul
+	plea [esp-12], t
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	vvmov c__, reg_Vec3_1, 3
+	plea [esp-12], a
+	plea [esp-16], b
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	vvmov u, reg_Vec3_1, 3
+	plea [esp-12], u
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	vvmov dd__, reg_float_1, 1
+	fimov reg_int_2, dd__
+	iimov j, 0
+	L159:
+	iicmp j, reg_int_2
+	jnl L160
+	plea [esp-12], terrain
+	add esp, -12
+	plea [esp-12], u
+	ifmov reg_float_1, j
+	ffdiv reg_float_1, dd__, reg_float_2
+	vvmov [esp-16], reg_float_2, 1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mulc
+	sub esp, -12
+	add esp, -12
+	plea [esp-12], b
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_int_3
+	call Terrain__collide
+	iicmp reg_int_3, 1
+	jne L163
+	vpmov ret_0, 1, 1
+	jmp end_Player__collide
+	L163:
+	L162:
+	L161:
+	iiadd j, 1, j
+	jmp L159
+	L160:
+	plea [esp-12], a
+	plea [esp-16], c__
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	vvmov u, reg_Vec3_1, 3
+	plea [esp-12], u
+	plea [esp-16], reg_float_1
+	call Vec3__length
+	vvmov dd__, reg_float_1, 1
+	fimov reg_int_2, dd__
+	iimov j, 0
+	L164:
+	iicmp j, reg_int_2
+	jnl L165
+	plea [esp-12], terrain
+	add esp, -12
+	plea [esp-12], u
+	ifmov reg_float_1, j
+	ffdiv reg_float_1, dd__, reg_float_2
+	vvmov [esp-16], reg_float_2, 1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mulc
+	sub esp, -12
+	add esp, -12
+	plea [esp-12], c__
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_int_3
+	call Terrain__collide
+	iicmp reg_int_3, 1
+	jne L168
+	vpmov ret_0, 1, 1
+	jmp end_Player__collide
+	L168:
+	L167:
+	L166:
+	iiadd j, 1, j
+	jmp L164
+	L165:
+	L158:
+	iiadd i, 1, i
+	jmp L156
+	L157:
+	vpmov ret_0, 0, 1
+	jmp end_Player__collide
+	end_Player__collide:
+	ret
+Player__collide ENDP
+
+
 Player__update PROC USES esi edi
-	local self:DWORD, reg_float_1:DWORD, rot[9]:DWORD, reg_Vec3_1[3]:DWORD, reg_Matrix3_1[9]:DWORD, reg_Matrix3_2[9]:DWORD, reg_Vec3_2[3]:DWORD, camera_w[3]:DWORD, camera_u[3]:DWORD, camera_v[3]:DWORD
-	lea esi, keyboard
-	iicmp [esi+12], 1
-	jne L79
-	mov esi, self
-	ffadd [esi+64], 1065353216, reg_float_1
-	mov esi, self
-	vvmov [esi+64], reg_float_1, 1
-	jmp L78
-	L79:
+	local self:DWORD, reg_Vec3_1[3]:DWORD, reg_float_1:DWORD, reg_Distortion_1[7]:DWORD, reg_int_1:DWORD, rot[9]:DWORD, reg_Matrix3_1[9]:DWORD, reg_Matrix3_2[9]:DWORD, reg_Vec3_2[3]:DWORD, theta:DWORD, phi:DWORD, local_camera_x:DWORD, reg_float_2:DWORD
+	local local_camera_y:DWORD, local_camera_z:DWORD, camera_w[3]:DWORD, reg_Vec3_3[3]:DWORD, camera_u[3]:DWORD, camera_v[3]:DWORD, reg_int_2:DWORD
 	lea esi, keyboard
 	iicmp [esi+20], 1
-	jne L80
+	jne L170
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], -1029701632, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
 	mov esi, self
-	ffsub [esi+64], 1065353216, reg_float_1
-	mov esi, self
-	vvmov [esi+64], reg_float_1, 1
-	jmp L78
-	L80:
-	lea esi, keyboard
-	iicmp [esi+8], 1
-	jne L81
-	mov esi, self
-	ffadd [esi+72], 1065353216, reg_float_1
-	mov esi, self
-	vvmov [esi+72], reg_float_1, 1
-	jmp L78
-	L81:
-	lea esi, keyboard
-	iicmp [esi+16], 1
-	jne L82
-	mov esi, self
-	ffsub [esi+72], 1065353216, reg_float_1
-	mov esi, self
-	vvmov [esi+72], reg_float_1, 1
-	jmp L78
-	L82:
-	lea esi, keyboard
-	iicmp [esi+0], 1
-	jne L83
-	mov esi, self
-	ffadd [esi+68], 1065353216, reg_float_1
-	mov esi, self
-	vvmov [esi+68], reg_float_1, 1
-	jmp L78
-	L83:
+	vvmov [esi+104], reg_Vec3_1, 3
+	jmp L169
+	L170:
 	lea esi, keyboard
 	iicmp [esi+4], 1
-	jne L84
+	jne L171
+	vvmov [esp-12], -1036779520, 1
+	vvmov [esp-16], -1036779520, 1
+	vvmov [esp-20], -1013579776, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
 	mov esi, self
-	ffsub [esi+68], 1065353216, reg_float_1
+	vvmov [esi+104], reg_Vec3_1, 3
+	jmp L169
+	L171:
+	lea esi, keyboard
+	iicmp [esi+8], 1
+	jne L172
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], -1028521984, 1
+	vvmov [esp-20], -1005191168, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
 	mov esi, self
-	vvmov [esi+68], reg_float_1, 1
-	L84:
-	L78:
+	vvmov [esi+104], reg_Vec3_1, 3
+	jmp L169
+	L172:
+	lea esi, keyboard
+	iicmp [esi+0], 1
+	jne L173
+	vvmov [esp-12], 1106247680, 1
+	vvmov [esp-16], -1020002304, 1
+	vvmov [esp-20], -1013579776, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	mov esi, self
+	vvmov [esi+104], reg_Vec3_1, 3
+	jmp L169
+	L173:
+	lea esi, keyboard
+	iicmp [esi+12], 1
+	jne L174
+	plea [esp-12], camera
+	mov esi, self
+	ffsub [esi+20], 1128792064, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	plea [esp-12], reg_Vec3_1
+	vvmov [esp-16], 1112014848, 1
+	vvmov [esp-20], 3, 1
+	plea [esp-24], reg_Distortion_1
+	call Distortion__init
+	sub esp, -12
+	plea [esp-16], reg_Distortion_1
+	call Camera__add_distortion
+	L174:
+	L169:
 	lea esi, keyboard
 	iicmp [esi+32], 1
-	jne L86
+	jne L176
 	mov esi, self
-	vvmov [esi+100], -1041235968, 1
-	jmp L85
-	L86:
+	vvmov [esi+176], -1049624576, 1
+	jmp L175
+	L176:
 	lea esi, keyboard
 	iicmp [esi+36], 1
-	jne L87
+	jne L177
 	mov esi, self
-	vvmov [esi+100], 1106247680, 1
-	jmp L85
-	L87:
+	vvmov [esi+176], 1097859072, 1
+	jmp L175
+	L177:
 	lea esi, keyboard
 	iicmp [esi+28], 1
-	jne L88
+	jne L178
 	mov esi, self
-	vvmov [esi+100], 0, 1
-	L88:
-	L85:
+	vvmov [esi+176], 0, 1
+	L178:
+	L175:
 	mov esi, self
-	plea [esp-12], [esi+104]
+	ffcmp [esi+4], [esi+0]
+	jnb L180
 	mov esi, self
-	vvmov [esp-16], [esi+76], 1
+	fimov reg_int_1, [esi+4]
+	lea esi, engine
+	ffmul 1125515264, [esi+4], reg_float_1
 	mov esi, self
-	vvmov [esp-20], [esi+100], 1
+	ffadd [esi+4], reg_float_1, reg_float_1
+	mov esi, self
+	vvmov [esi+4], reg_float_1, 1
+	L180:
+	L179:
+	mov esi, self
+	plea [esp-12], [esi+180]
+	mov esi, self
+	vvmov [esp-16], [esi+152], 1
+	mov esi, self
+	vvmov [esp-20], [esi+176], 1
 	plea [esp-24], reg_float_1
 	call PD__step
 	lea esi, engine
 	ffmul reg_float_1, [esi+4], reg_float_1
 	mov esi, self
-	ffadd [esi+88], reg_float_1, reg_float_1
+	ffadd [esi+164], reg_float_1, reg_float_1
 	mov esi, self
-	vvmov [esi+88], reg_float_1, 1
-	mov esi, self
-	lea edi, engine
-	ffmul [esi+88], [edi+4], reg_float_1
-	mov esi, self
-	ffadd [esi+76], reg_float_1, reg_float_1
-	mov esi, self
-	vvmov [esi+76], reg_float_1, 1
+	vvmov [esi+164], reg_float_1, 1
 	mov esi, self
 	lea edi, engine
-	ffmul [esi+0], [edi+4], reg_float_1
+	ffmul [esi+164], [edi+4], reg_float_1
 	mov esi, self
-	ffadd [esi+4], reg_float_1, reg_float_1
+	ffadd [esi+152], reg_float_1, reg_float_1
 	mov esi, self
-	vvmov [esi+4], reg_float_1, 1
+	vvmov [esi+152], reg_float_1, 1
+	mov esi, self
+	ffsub 0, [esi+152], reg_float_1
+	mov esi, self
+	vvmov [esi+160], reg_float_1, 1
 	vvmov [esp-12], 1065353216, 1
 	vvmov [esp-16], 0, 1
 	vvmov [esp-20], 0, 1
@@ -8451,7 +9742,7 @@ Player__update PROC USES esi edi
 	call Vec3__init
 	plea [esp-12], reg_Vec3_1
 	mov esi, self
-	vvmov [esp-16], [esi+76], 1
+	vvmov [esp-16], [esi+152], 1
 	plea [esp-20], reg_Matrix3_1
 	call axisAngle2Matrix
 	vvmov [esp-12], 0, 1
@@ -8461,7 +9752,7 @@ Player__update PROC USES esi edi
 	call Vec3__init
 	plea [esp-12], reg_Vec3_1
 	mov esi, self
-	vvmov [esp-16], [esi+80], 1
+	vvmov [esp-16], [esi+156], 1
 	plea [esp-20], reg_Matrix3_2
 	call axisAngle2Matrix
 	plea [esp-12], reg_Matrix3_1
@@ -8475,7 +9766,7 @@ Player__update PROC USES esi edi
 	call Vec3__init
 	plea [esp-12], reg_Vec3_1
 	mov esi, self
-	vvmov [esp-16], [esi+84], 1
+	vvmov [esp-16], [esi+160], 1
 	plea [esp-20], reg_Matrix3_2
 	call axisAngle2Matrix
 	plea [esp-12], reg_Matrix3_1
@@ -8483,57 +9774,145 @@ Player__update PROC USES esi edi
 	plea [esp-20], reg_Matrix3_1
 	call Matrix3__mul
 	vvmov rot, reg_Matrix3_1, 9
+	mov esi, self
+	vvmov [esi+8], [esi+20], 3
 	lea esi, rot
 	plea [esp-12], [esi+0]
 	mov esi, self
-	vvmov [esp-16], [esi+64], 1
+	lea edi, engine
+	ffmul [esi+4], [edi+4], reg_float_1
+	vvmov [esp-16], reg_float_1, 1
 	plea [esp-20], reg_Vec3_1
 	call Vec3__mulc
+	vvmov [esp-12], 1065353216, 1
+	vvmov [esp-16], -1082130432, 1
+	vvmov [esp-20], 1065353216, 1
+	plea [esp-24], reg_Vec3_2
+	call Vec3__init
+	plea [esp-12], reg_Vec3_1
+	plea [esp-16], reg_Vec3_2
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mul
 	mov esi, self
-	plea [esp-12], [esi+4]
+	plea [esp-12], [esi+20]
 	plea [esp-16], reg_Vec3_1
 	plea [esp-20], reg_Vec3_1
-	call Vec3__sub
-	lea esi, rot
-	plea [esp-12], [esi+12]
+	call Vec3__add
 	mov esi, self
-	vvmov [esp-16], [esi+68], 1
+	vvmov [esi+20], reg_Vec3_1, 3
+	mov esi, self
+	plea [esp-12], [esi+116]
+	mov esi, self
+	plea [esp-16], [esi+80]
+	mov esi, self
+	plea [esp-20], [esi+104]
+	plea [esp-24], reg_Vec3_1
+	call Vec3PD__step
+	plea [esp-12], reg_Vec3_1
+	lea esi, engine
+	vvmov [esp-16], [esi+4], 1
 	plea [esp-20], reg_Vec3_2
 	call Vec3__mulc
-	plea [esp-12], reg_Vec3_1
-	plea [esp-16], reg_Vec3_2
-	plea [esp-20], reg_Vec3_1
-	call Vec3__sub
-	lea esi, rot
-	plea [esp-12], [esi+24]
 	mov esi, self
-	vvmov [esp-16], [esi+72], 1
+	plea [esp-12], [esi+92]
+	plea [esp-16], reg_Vec3_2
+	plea [esp-20], reg_Vec3_2
+	call Vec3__add
+	mov esi, self
+	vvmov [esi+92], reg_Vec3_2, 3
+	mov esi, self
+	plea [esp-12], [esi+92]
+	lea esi, engine
+	vvmov [esp-16], [esi+4], 1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__mulc
+	mov esi, self
+	plea [esp-12], [esi+80]
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	mov esi, self
+	vvmov [esi+80], reg_Vec3_1, 3
+	mov esi, self
+	vvmov [esp-12], [esi+80], 1
+	plea [esp-16], reg_float_1
+	call deg2rad
+	vvmov theta, reg_float_1, 1
+	mov esi, self
+	vvmov [esp-12], [esi+84], 1
+	plea [esp-16], reg_float_1
+	call deg2rad
+	vvmov phi, reg_float_1, 1
+	vvmov [esp-12], theta, 1
+	plea [esp-16], reg_float_1
+	call cos
+	vvmov [esp-12], phi, 1
+	plea [esp-16], reg_float_2
+	call cos
+	ffmul reg_float_1, reg_float_2, reg_float_1
+	vvmov local_camera_x, reg_float_1, 1
+	vvmov [esp-12], theta, 1
+	plea [esp-16], reg_float_1
+	call sin
+	vvmov [esp-12], phi, 1
+	plea [esp-16], reg_float_2
+	call cos
+	ffmul reg_float_1, reg_float_2, reg_float_1
+	vvmov local_camera_y, reg_float_1, 1
+	vvmov [esp-12], phi, 1
+	plea [esp-16], reg_float_1
+	call sin
+	vvmov local_camera_z, reg_float_1, 1
+	vvmov [esp-12], local_camera_x, 1
+	vvmov [esp-16], local_camera_y, 1
+	vvmov [esp-20], local_camera_z, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	plea [esp-12], reg_Vec3_1
+	mov esi, self
+	vvmov [esp-16], [esi+88], 1
 	plea [esp-20], reg_Vec3_2
 	call Vec3__mulc
-	plea [esp-12], reg_Vec3_1
+	mov esi, self
+	plea [esp-12], [esi+20]
 	plea [esp-16], reg_Vec3_2
-	plea [esp-20], reg_Vec3_1
-	call Vec3__sub
+	plea [esp-20], reg_Vec3_2
+	call Vec3__add
 	lea esi, camera
-	vvmov [esi+0], reg_Vec3_1, 3
+	vvmov [esi+0], reg_Vec3_2, 3
+	plea [esp-12], reg_Vec3_1
+	call Vec3_zero
 	lea esi, camera
 	plea [esp-12], [esi+0]
 	mov esi, self
-	plea [esp-16], [esi+4]
+	plea [esp-16], [esi+20]
+	plea [esp-20], reg_Vec3_2
+	call Vec3__sub
+	plea [esp-12], reg_Vec3_2
+	plea [esp-16], reg_Vec3_3
+	call Vec3__norm
+	plea [esp-12], reg_Vec3_1
+	plea [esp-16], reg_Vec3_3
 	plea [esp-20], reg_Vec3_1
 	call Vec3__sub
+	vvmov camera_w, reg_Vec3_1, 3
+	plea [esp-12], camera_w
+	add esp, -12
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], 1065353216, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__cross
 	plea [esp-12], reg_Vec3_1
 	plea [esp-16], reg_Vec3_2
 	call Vec3__norm
-	vvmov camera_w, reg_Vec3_2, 3
-	vvmov [esp-12], 0, 1
-	vvmov [esp-16], -1082130432, 1
-	vvmov [esp-20], 0, 1
-	plea [esp-24], reg_Vec3_1
-	call Vec3__init
-	vvmov camera_u, reg_Vec3_1, 3
-	plea [esp-12], camera_u
-	plea [esp-16], camera_w
+	vvmov camera_u, reg_Vec3_2, 3
+	plea [esp-12], camera_w
+	plea [esp-16], camera_u
 	plea [esp-20], reg_Vec3_1
 	call Vec3__cross
 	plea [esp-12], reg_Vec3_1
@@ -8550,19 +9929,32 @@ Player__update PROC USES esi edi
 	sub esp, -12
 	plea [esp-16], reg_Matrix3_1
 	call Camera__set_inv_axis
+	iimov [esp-12], self
+	plea [esp-16], reg_int_2
+	call Player__collide
+	iicmp reg_int_2, 1
+	jne L182
+	plea [esp-12], camera
+	vvmov [esp-16], 1084227584, 1
+	vvmov [esp-20], 1056964608, 1
+	call Camera__shake
+	mov esi, self
+	vvmov [esi+4], 1125515264, 1
+	L182:
+	L181:
 	plea [esp-12], mm
 	mov esi, self
-	plea [esp-16], [esi+4]
+	plea [esp-16], [esi+20]
 	add esp, -16
 	plea [esp-12], rot
 	mov esi, self
-	plea [esp-16], [esi+16]
+	plea [esp-16], [esi+32]
 	plea [esp-20], reg_Matrix3_1
 	call Matrix3__mul
 	sub esp, -16
 	plea [esp-20], reg_Matrix3_1
 	mov esi, self
-	plea [esp-24], [esi+52]
+	plea [esp-24], [esi+68]
 	call ModelManager__set_transform
 	plea [esp-12], mm
 	call ModelManager__add_spaceship
@@ -8575,44 +9967,44 @@ Player__rot_x_ctl_test PROC USES esi edi
 	local self:DWORD, reg_float_1:DWORD
 	lea esi, keyboard
 	iicmp [esi+0], 1
-	jne L90
+	jne L184
 	mov esi, self
-	ffadd [esi+108], 1036831949, reg_float_1
+	ffadd [esi+184], 1036831949, reg_float_1
 	mov esi, self
-	vvmov [esi+108], reg_float_1, 1
-	jmp L89
-	L90:
+	vvmov [esi+184], reg_float_1, 1
+	jmp L183
+	L184:
 	lea esi, keyboard
 	iicmp [esi+12], 1
-	jne L91
+	jne L185
 	mov esi, self
-	ffsub [esi+108], 1036831949, reg_float_1
+	ffsub [esi+184], 1036831949, reg_float_1
 	mov esi, self
-	vvmov [esi+108], reg_float_1, 1
-	jmp L89
-	L91:
+	vvmov [esi+184], reg_float_1, 1
+	jmp L183
+	L185:
 	lea esi, keyboard
 	iicmp [esi+4], 1
-	jne L92
+	jne L186
 	mov esi, self
-	ffadd [esi+112], 1036831949, reg_float_1
+	ffadd [esi+188], 1036831949, reg_float_1
 	mov esi, self
-	vvmov [esi+112], reg_float_1, 1
-	jmp L89
-	L92:
+	vvmov [esi+188], reg_float_1, 1
+	jmp L183
+	L186:
 	lea esi, keyboard
 	iicmp [esi+20], 1
-	jne L93
+	jne L187
 	mov esi, self
-	ffsub [esi+112], 1036831949, reg_float_1
+	ffsub [esi+188], 1036831949, reg_float_1
 	mov esi, self
-	vvmov [esi+112], reg_float_1, 1
-	L93:
-	L89:
+	vvmov [esi+188], reg_float_1, 1
+	L187:
+	L183:
 	mov esi, self
-	printFloat [esi+108]
+	printFloat [esi+184]
 	mov esi, self
-	printFloat [esi+112]
+	printFloat [esi+188]
 	printEndl
 	end_Player__rot_x_ctl_test:
 	ret
@@ -8620,55 +10012,204 @@ Player__rot_x_ctl_test ENDP
 
 
 Obstacle__init PROC USES esi edi
-	local pos:DWORD, w:DWORD, h:DWORD, type__:DWORD, self:DWORD
+	local pos:DWORD, w:DWORD, h:DWORD, type__:DWORD, self:DWORD, reg_float_1:DWORD
 	mov esi, self
 	pvmov [esi+0], pos, 3
 	mov esi, self
 	vvmov [esi+12], type__, 1
+	ifmov reg_float_1, w
 	mov esi, self
-	vvmov [esi+16], 1092616192, 1
+	vvmov [esi+16], reg_float_1, 1
+	ifmov reg_float_1, h
 	mov esi, self
-	vvmov [esi+20], 1092616192, 1
+	vvmov [esi+20], reg_float_1, 1
 	end_Obstacle__init:
 	ret
 Obstacle__init ENDP
+
+
+Obstacle__collide PROC USES esi edi
+	local self:DWORD, p:DWORD, ret_0:DWORD, d[3]:DWORD, reg_Vec3_1[3]:DWORD, b:DWORD, reg_float_1:DWORD, reg_int_1:DWORD, reg_int_2:DWORD, reg_int_3:DWORD, reg_int_4:DWORD
+	iimov [esp-12], p
+	mov esi, self
+	plea [esp-16], [esi+0]
+	plea [esp-20], reg_Vec3_1
+	call Vec3__sub
+	vvmov d, reg_Vec3_1, 3
+	mov esi, self
+	iicmp [esi+12], 1
+	jne L189
+	lea esi, d
+	mov edi, self
+	ffmul [esi+8], [edi+16], reg_float_1
+	mov esi, self
+	ffdiv reg_float_1, [esi+20], reg_float_1
+	vvmov b, reg_float_1, 1
+	lea esi, d
+	iicmp 0 , [esi+8]
+	jg L190
+	lea esi, d
+	mov edi, self
+	ffcmp [esi+8], [edi+20]
+	jnb L190
+	lea esi, d
+	fimov reg_int_1, [esi+8]
+	lea esi, d
+	vvmov [esp-12], [esi+0], 1
+	plea [esp-16], reg_float_1
+	call fabs__
+	ffcmp reg_float_1, b
+	jnb L190
+	fimov reg_int_2, reg_float_1
+	lea esi, d
+	vvmov [esp-12], [esi+4], 1
+	plea [esp-16], reg_float_1
+	call fabs__
+	ffcmp reg_float_1, b
+	jnb L190
+	fimov reg_int_3, reg_float_1
+	mov reg_int_4, 1
+	jmp L191
+	L190:
+	mov reg_int_4, 0
+	L191:
+	vpmov ret_0, reg_int_4, 1
+	jmp end_Obstacle__collide
+	jmp L188
+	L189:
+	mov esi, self
+	iicmp [esi+12], 2
+	jne L192
+	lea esi, d
+	iicmp 0 , [esi+8]
+	jg L193
+	lea esi, d
+	mov edi, self
+	ffcmp [esi+8], [edi+20]
+	jnb L193
+	lea esi, d
+	fimov reg_int_1, [esi+8]
+	lea esi, d
+	vvmov [esp-12], [esi+0], 1
+	plea [esp-16], reg_float_1
+	call fabs__
+	mov esi, self
+	ffcmp reg_float_1, [esi+16]
+	jnb L193
+	fimov reg_int_2, reg_float_1
+	lea esi, d
+	vvmov [esp-12], [esi+4], 1
+	plea [esp-16], reg_float_1
+	call fabs__
+	mov esi, self
+	ffcmp reg_float_1, [esi+16]
+	jnb L193
+	fimov reg_int_3, reg_float_1
+	mov reg_int_4, 1
+	jmp L194
+	L193:
+	mov reg_int_4, 0
+	L194:
+	vpmov ret_0, reg_int_4, 1
+	jmp end_Obstacle__collide
+	L192:
+	L188:
+	end_Obstacle__collide:
+	ret
+Obstacle__collide ENDP
 
 
 Obstacle__update PROC USES esi edi
 	local self:DWORD
 	mov esi, self
 	iicmp [esi+12], 1
-	jne L95
+	jne L196
 	plea [esp-12], mm
 	mov esi, self
 	plea [esp-16], [esi+0]
 	mov esi, self
-	vvmov [esp-20], [esi+20], 1
+	vvmov [esp-20], [esi+16], 1
 	mov esi, self
-	vvmov [esp-24], [esi+16], 1
+	vvmov [esp-24], [esi+20], 1
 	call ModelManager__add_pyramid
-	L95:
-	L94:
+	jmp L195
+	L196:
+	mov esi, self
+	iicmp [esi+12], 2
+	jne L197
+	plea [esp-12], mm
+	mov esi, self
+	plea [esp-16], [esi+0]
+	mov esi, self
+	vvmov [esp-20], [esi+16], 1
+	mov esi, self
+	vvmov [esp-24], [esi+20], 1
+	call ModelManager__add_box
+	L197:
+	L195:
 	end_Obstacle__update:
 	ret
 Obstacle__update ENDP
 
 
 Terrain__init PROC USES esi edi
-	local pos:DWORD, self:DWORD
+	local self:DWORD
 	mov esi, self
-	pvmov [esi+0], pos, 3
+	vvmov [esi+0], 0, 1
+	mov esi, self
+	vvmov [esi+4], 1148846080, 1
+	mov esi, self
+	vvmov [esi+8], 1140457472, 1
 	mov esi, self
 	vvmov [esi+12], 0, 1
+	mov esi, self
+	vvmov [esi+16], 0, 1
+	mov esi, self
+	vvmov [esi+20], 2000, 1
+	mov esi, self
+	vvmov [esi+48024], 1120403456, 1
+	mov esi, self
+	vvmov [esi+48028], 1, 1
 	end_Terrain__init:
 	ret
 Terrain__init ENDP
 
 
+Terrain__collide PROC USES esi edi
+	local self:DWORD, p:DWORD, ret_0:DWORD, i:DWORD, reg_int_1:DWORD, reg_int_2:DWORD
+	iimov i, 0
+	L198:
+	mov esi, self
+	iicmp i, [esi+12]
+	jnl L199
+	iimul i, 24, reg_int_1
+	mov esi, self
+	add esi, reg_int_1
+	plea [esp-12], [esi+24]
+	iimov [esp-16], p
+	plea [esp-20], reg_int_2
+	call Obstacle__collide
+	iicmp reg_int_2, 1
+	jne L202
+	vpmov ret_0, 1, 1
+	jmp end_Terrain__collide
+	L202:
+	L201:
+	L200:
+	iiadd i, 1, i
+	jmp L198
+	L199:
+	vpmov ret_0, 0, 1
+	jmp end_Terrain__collide
+	end_Terrain__collide:
+	ret
+Terrain__collide ENDP
+
+
 Terrain__add_obstacle PROC USES esi edi
 	local self:DWORD, pos:DWORD, w:DWORD, h:DWORD, type__:DWORD, reg_int_1:DWORD, reg_Obstacle_1[6]:DWORD
 	mov esi, self
-	iimul [esi+12], 24, reg_int_1
+	iimul [esi+16], 24, reg_int_1
 	iimov [esp-12], pos
 	vvmov [esp-16], w, 1
 	vvmov [esp-20], h, 1
@@ -8677,100 +10218,363 @@ Terrain__add_obstacle PROC USES esi edi
 	call Obstacle__init
 	mov esi, self
 	add esi, reg_int_1
-	vvmov [esi+16], reg_Obstacle_1, 6
+	vvmov [esi+24], reg_Obstacle_1, 6
 	mov esi, self
 	iiadd [esi+12], 1, reg_int_1
+	vvmov [esp-12], reg_int_1, 1
+	mov esi, self
+	vvmov [esp-16], [esi+20], 1
+	plea [esp-20], reg_int_1
+	call min2i
 	mov esi, self
 	vvmov [esi+12], reg_int_1, 1
+	mov esi, self
+	iiadd [esi+16], 1, reg_int_1
+	mov esi, self
+	iimod reg_int_1, [esi+20], reg_int_1
+	mov esi, self
+	vvmov [esi+16], reg_int_1, 1
 	end_Terrain__add_obstacle:
 	ret
 Terrain__add_obstacle ENDP
 
 
 Terrain__update PROC USES esi edi
-	local self:DWORD, reg_Matrix3_1[9]:DWORD, reg_Vec3_1[3]:DWORD, i:DWORD, reg_int_1:DWORD
+	local self:DWORD, player_pos:DWORD, reg_Vec3_1[3]:DWORD, reg_Matrix3_1[9]:DWORD, reg_Vec3_2[3]:DWORD, i:DWORD, reg_int_1:DWORD
+	iimov [esp-12], self
+	iimov [esp-16], player_pos
+	call Terrain__generate_terrain
 	plea [esp-12], mm
-	mov esi, self
-	plea [esp-16], [esi+0]
+	add esp, -12
+	plea [esp-12], reg_Vec3_1
+	call Vec3_zero
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
 	add esp, -16
 	plea [esp-12], reg_Matrix3_1
 	call Matrix3_identity
 	sub esp, -16
 	plea [esp-20], reg_Matrix3_1
 	add esp, -20
-	plea [esp-12], reg_Vec3_1
+	plea [esp-12], reg_Vec3_2
 	call Vec3_one
 	sub esp, -20
-	plea [esp-24], reg_Vec3_1
+	plea [esp-24], reg_Vec3_2
 	call ModelManager__set_transform
 	iimov i, 0
-	L96:
+	L203:
 	mov esi, self
 	iicmp i, [esi+12]
-	jnl L97
+	jnl L204
 	iimul i, 24, reg_int_1
 	mov esi, self
 	add esi, reg_int_1
-	plea [esp-12], [esi+16]
+	plea [esp-12], [esi+24]
 	call Obstacle__update
+	L205:
 	iiadd i, 1, i
-	jmp L96
-	L97:
+	jmp L203
+	L204:
 	end_Terrain__update:
 	ret
 Terrain__update ENDP
 
 
+Terrain__generate_sub_terrain PROC USES esi edi
+	local self:DWORD, pos:DWORD, siz:DWORD, w:DWORD, h:DWORD, nw:DWORD, nh:DWORD, nsiz:DWORD, reg_float_1:DWORD, rid:DWORD, reg_int_1:DWORD, reg_int_2:DWORD, reg_int_3:DWORD
+	local reg_int_4:DWORD, reg_Vec3_1[3]:DWORD
+	ffdiv siz, 1077936128, reg_float_1
+	vvmov nsiz, reg_float_1, 1
+	vvmov [esp-12], 0, 1
+	vvmov [esp-16], 1065353216, 1
+	plea [esp-20], reg_float_1
+	call rand
+	vvmov rid, reg_float_1, 1
+	ffcmp rid, 1005961871
+	jnb L207
+	fimov reg_int_1, rid
+	ffmul siz, 1082130432, reg_float_1
+	ffdiv reg_float_1, 1084227584, reg_float_1
+	vvmov w, reg_float_1, 1
+	iimov [esp-12], self
+	iimov [esp-16], pos
+	fimov reg_int_2, w
+	vvmov [esp-20], reg_int_2, 1
+	fimov reg_int_2, w
+	vvmov [esp-24], reg_int_2, 1
+	vvmov [esp-28], 1, 1
+	call Terrain__add_obstacle
+	jmp L206
+	L207:
+	ffcmp rid, 1017370378
+	jnb L208
+	fimov reg_int_2, rid
+	ffcmp siz, 1097859072
+	jnb L208
+	fimov reg_int_3, siz
+	vvmov w, siz, 1
+	vvmov [esp-12], 1109393408, 1
+	vvmov [esp-16], 1116471296, 1
+	plea [esp-20], reg_float_1
+	call rand
+	vvmov h, reg_float_1, 1
+	iimov [esp-12], self
+	iimov [esp-16], pos
+	fimov reg_int_4, w
+	vvmov [esp-20], reg_int_4, 1
+	fimov reg_int_4, h
+	vvmov [esp-24], reg_int_4, 1
+	vvmov [esp-28], 1, 1
+	call Terrain__add_obstacle
+	jmp L206
+	L208:
+	ffcmp siz, 1106247680
+	jb L209
+	fimov reg_int_4, siz
+	iimov [esp-12], self
+	ffmul nsiz, 0, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	ffmul nsiz, 0, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	iimov [esp-12], pos
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	vvmov [esp-20], nsiz, 1
+	call Terrain__generate_sub_terrain
+	iimov [esp-12], self
+	ffmul nsiz, 0, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	ffmul nsiz, 1065353216, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	iimov [esp-12], pos
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	vvmov [esp-20], nsiz, 1
+	call Terrain__generate_sub_terrain
+	iimov [esp-12], self
+	ffmul nsiz, 0, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	ffmul nsiz, 1073741824, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	iimov [esp-12], pos
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	vvmov [esp-20], nsiz, 1
+	call Terrain__generate_sub_terrain
+	iimov [esp-12], self
+	ffmul nsiz, 1065353216, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	ffmul nsiz, 0, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	iimov [esp-12], pos
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	vvmov [esp-20], nsiz, 1
+	call Terrain__generate_sub_terrain
+	iimov [esp-12], self
+	ffmul nsiz, 1065353216, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	ffmul nsiz, 1065353216, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	iimov [esp-12], pos
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	vvmov [esp-20], nsiz, 1
+	call Terrain__generate_sub_terrain
+	iimov [esp-12], self
+	ffmul nsiz, 1065353216, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	ffmul nsiz, 1073741824, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	iimov [esp-12], pos
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	vvmov [esp-20], nsiz, 1
+	call Terrain__generate_sub_terrain
+	iimov [esp-12], self
+	ffmul nsiz, 1073741824, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	ffmul nsiz, 0, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	iimov [esp-12], pos
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	vvmov [esp-20], nsiz, 1
+	call Terrain__generate_sub_terrain
+	iimov [esp-12], self
+	ffmul nsiz, 1073741824, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	ffmul nsiz, 1065353216, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	iimov [esp-12], pos
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	vvmov [esp-20], nsiz, 1
+	call Terrain__generate_sub_terrain
+	iimov [esp-12], self
+	ffmul nsiz, 1073741824, reg_float_1
+	add esp, -12
+	vvmov [esp-12], reg_float_1, 1
+	ffmul nsiz, 1073741824, reg_float_1
+	vvmov [esp-16], reg_float_1, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	add esp, -12
+	iimov [esp-12], pos
+	plea [esp-16], reg_Vec3_1
+	plea [esp-20], reg_Vec3_1
+	call Vec3__add
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	vvmov [esp-20], nsiz, 1
+	call Terrain__generate_sub_terrain
+	L209:
+	L206:
+	end_Terrain__generate_sub_terrain:
+	ret
+Terrain__generate_sub_terrain ENDP
+
+
+Terrain__generate_terrain PROC USES esi edi
+	local self:DWORD, pos:DWORD, tar_x:DWORD, reg_float_1:DWORD, tar_y:DWORD, y:DWORD, reg_int_1:DWORD, reg_int_2:DWORD, reg_Vec3_1[3]:DWORD
+	mov esi, pos
+	mov edi, self
+	ffadd [esi+0], [edi+4], reg_float_1
+	vvmov tar_x, reg_float_1, 1
+	mov esi, self
+	ffdiv [esi+8], 1073741824, reg_float_1
+	mov esi, pos
+	ffadd [esi+4], reg_float_1, reg_float_1
+	vvmov tar_y, reg_float_1, 1
+	mov esi, self
+	ffdiv [esi+8], 1073741824, reg_float_1
+	mov esi, pos
+	ffsub [esi+4], reg_float_1, reg_float_1
+	vvmov y, reg_float_1, 1
+	mov esi, self
+	ffmod y, [esi+48024], reg_float_1
+	ffsub y, reg_float_1, reg_float_1
+	vvmov y, reg_float_1, 1
+	L210:
+	mov esi, self
+	ffcmp [esi+0], tar_x
+	jnb L211
+	mov esi, self
+	fimov reg_int_1, [esi+0]
+	L212:
+	ffcmp y, tar_y
+	jnb L213
+	fimov reg_int_2, y
+	iimov [esp-12], self
+	add esp, -12
+	mov esi, self
+	vvmov [esp-12], [esi+0], 1
+	vvmov [esp-16], y, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	sub esp, -12
+	plea [esp-16], reg_Vec3_1
+	mov esi, self
+	vvmov [esp-20], [esi+48024], 1
+	call Terrain__generate_sub_terrain
+	mov esi, self
+	ffadd y, [esi+48024], reg_float_1
+	vvmov y, reg_float_1, 1
+	jmp L212
+	L213:
+	mov esi, self
+	ffadd [esi+0], [esi+48024], reg_float_1
+	mov esi, self
+	vvmov [esi+0], reg_float_1, 1
+	jmp L210
+	L211:
+	end_Terrain__generate_terrain:
+	ret
+Terrain__generate_terrain ENDP
+
+
 init PROC USES esi edi
-	local reg_Vec3_1[3]:DWORD, i:DWORD, reg_int_1:DWORD, reg_float_1:DWORD
 	plea [esp-12], engine
 	call Engine__init
 	plea [esp-12], player
 	call Player__init
-	plea [esp-12], reg_Vec3_1
-	call Vec3_zero
-	plea [esp-12], reg_Vec3_1
-	plea [esp-16], terrain1
+	plea [esp-12], terrain
 	call Terrain__init
-	iimov i, 0
-	L98:
-	iicmp i, 500
-	jnl L99
-	plea [esp-12], terrain1
-	iimul i, 15, reg_int_1
-	iiadd 50 , reg_int_1, reg_int_1
-	ifmov reg_float_1, reg_int_1
-	add esp, -12
-	vvmov [esp-12], reg_float_1, 1
-	vvmov [esp-16], 1106247680, 1
-	vvmov [esp-20], 0, 1
-	plea [esp-24], reg_Vec3_1
-	call Vec3__init
-	sub esp, -12
-	plea [esp-16], reg_Vec3_1
-	vvmov [esp-20], 10, 1
-	vvmov [esp-24], 10, 1
-	vvmov [esp-28], 1, 1
-	call Terrain__add_obstacle
-	plea [esp-12], terrain1
-	iimul i, 15, reg_int_1
-	iiadd 50 , reg_int_1, reg_int_1
-	ifmov reg_float_1, reg_int_1
-	add esp, -12
-	vvmov [esp-12], reg_float_1, 1
-	vvmov [esp-16], -1041235968, 1
-	vvmov [esp-20], 0, 1
-	plea [esp-24], reg_Vec3_1
-	call Vec3__init
-	sub esp, -12
-	plea [esp-16], reg_Vec3_1
-	vvmov [esp-20], 10, 1
-	vvmov [esp-24], 10, 1
-	vvmov [esp-28], 1, 1
-	call Terrain__add_obstacle
-	iiadd i, 1, i
-	jmp L98
-	L99:
 	end_init:
 	ret
 init ENDP
@@ -8779,7 +10583,9 @@ init ENDP
 update PROC USES esi edi
 	plea [esp-12], player
 	call Player__update
-	plea [esp-12], terrain1
+	plea [esp-12], terrain
+	lea esi, player
+	plea [esp-16], [esi+20]
 	call Terrain__update
 	end_update:
 	ret

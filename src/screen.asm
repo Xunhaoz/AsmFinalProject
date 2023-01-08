@@ -1,6 +1,6 @@
 .DATA
-const WIDTH = 240; 480
-const HEIGHT = 180; 360
+const WIDTH = 480; 480
+const HEIGHT = 360; 360
 int color_buffer[HEIGHT][WIDTH]
 float deep_buffer[HEIGHT][WIDTH]
 int charLevel[64]
@@ -88,7 +88,7 @@ def display():
             int color = color_buffer[i][j]
             int char = charLevel[color]
             push_render_buffer char, p
-            push_render_buffer char, p
+            ; push_render_buffer char, p
         endl
         push_render_buffer 10, p
     endl

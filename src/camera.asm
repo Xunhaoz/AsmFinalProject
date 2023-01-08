@@ -1,4 +1,81 @@
 .CODE
+class Distortion:
+    def init(Vec3 pos, float siz, int type):
+        Vec3 self.pos = pos
+        float self.siz = siz
+        float self.r = 50
+        float self.k = 1.5
+        int self.type = type
+
+        if self.type == 1:
+            self.r = self.siz + self.siz ** self.k
+        endif
+    endf
+
+    def need(Vec3 p) -> (int):
+        if self.type == 0:
+            return 0
+        elif self.type == 1:
+            Vec3 v = self.pos - p
+            return v.length() < self.r
+        elif self.type == 2:
+            return fabs((p - self.pos).length() - self.r) < self.siz
+        elif self.type == 3:
+            return fabs(self.pos.x - p.x) < self.siz
+        endif
+    endf
+
+    def update():
+        if self.type == 1:
+            float nx = max2f(player.pos.x - 100 - self.r, self.pos.x + 0.9 * player.max_speed * engine.dt)
+            self.pos = Vec3(nx, player.pos.y, 40)
+        elif self.type == 2:
+            self.r = self.r + 10 * engine.dt
+            if self.r > 500:
+                self.type = 0
+            endif
+        elif self.type == 3:
+            self.pos.x = self.pos.x + 200 * engine.dt
+            if self.pos.x - player.pos.x > 1000:
+                self.type = 0
+            endif
+        endif
+    endf
+
+    def distort(Vec3 p) -> (Vec3):
+        if self.type == 1:
+            Vec3 v = self.pos - p
+            float d = v.length()
+            float x = d - self.siz ** self.k
+            if 0 < x && x < self.siz:
+                 return v.mulc(((self.siz - x) ** self.k) / d)
+            else:
+                return self.pos - p
+            endif
+        elif self.type == 2:
+            Vec3 v = p - self.pos
+            float d = v.length()
+            float x = d - self.r
+            if fabs(x) < self.siz:
+                 float k = 0.7
+                 float t = (self.siz - ((self.siz * cos(x / 2 / self.siz * 3.1415926)) ** k) / (self.siz ** (k - 1))) * x / fabs(x)
+                 return v.mulc((t - x) / d)
+            else:
+                return Vec3_zero()
+            endif
+        elif self.type == 3:
+            float x = self.pos.x - p.x
+            if fabs(x) < self.siz:
+                 float h = 30
+                 float t = (1 + cos(x * 3.1415926 / self.siz)) * h / 2
+                 return Vec3(0, 0, t)
+            else:
+                return Vec3_zero()
+            endif
+        endif
+    endf
+endc
+
 class Camera:
     def init():
         Vec3 self.pos = Vec3(-100, 0, 0)
@@ -15,37 +92,146 @@ class Camera:
         float self.diffuse = 0.4
         float self.bloom = 0.4
 
+        float self.mesh_size = 0.01
+
+        float self.shake_start_time = 0
+        float self.shake_magnitude = 0
+        float self.shake_duration = 0
+
         int self.cnt = 0
+
+        int self.n_distortions = 10
+        Distortion self.distortions[10]
+        for i in range(self.n_distortions):
+            self.distortions[i].type = 0
+        endl
+    endf
+
+    def add_distortion(Distortion d):
+        for i in range(self.n_distortions):
+            if self.distortions[i].type == 0:
+                self.distortions[i] = d
+                return
+            endif
+        endl
+    endf
+
+    def need_distort(Vec3 p) -> (int):
+        for i in range(self.n_distortions):
+            if self.distortions[i].need(p) == 1: return 1
+        endl
+        return 0
+    endf
+
+    def distort(Vec3 p) -> (Vec3):
+        Vec3 r = p
+        for i in range(self.n_distortions):
+            if self.distortions[i].type > 0:
+                r = r + self.distortions[i].distort(p)
+            endif
+        endl
+        return r
     endf
 
     def set_axis(Matrix3 axis):
         self.axis = axis
         self.inv_axis = axis.inv() 
-        self.near_gp = self.pos - self.inv_axis.w.mulc(self.near.z)
+        self.near_gp = self.pos + self.inv_axis.w.mulc(self.near.z)
     endf
 
     def set_inv_axis(Matrix3 inv_axis):
         self.inv_axis = inv_axis 
         self.axis = inv_axis.inv() 
-        self.near_gp = self.pos - self.inv_axis.w.mulc(self.near.z)
+        self.near_gp = self.pos + self.inv_axis.w.mulc(self.near.z)
     endf
 
     def render():
+        self._shake()
+        for i in range(self.n_distortions):
+            self.distortions[i].update()
+        endl
         clear_buffer()
         for i in range(n_triangles):
-            self.render_triangle(triangles[i])
+            Triangle tri = triangles[i]
+            Vec3 p0 = vertices[tri.p0]
+            Vec3 p1 = vertices[tri.p1]
+            Vec3 p2 = vertices[tri.p2]
+
+            Vec3 bound = self.distortions[0].pos
+            float bound_r = self.distortions[0].r - self.distortions[0].siz
+            float bound_x = bound.x
+            if (p0.x < bound_x || (p0 - bound).length() < bound_r) && \
+               (p1.x < bound_x || (p1 - bound).length() < bound_r) && \
+               (p2.x < bound_x || (p2 - bound).length() < bound_r):
+                continue
+            endif
+
+            ; clip near
+            if self.visible(p0) == 0 && self.visible(p1) == 0 && self.visible(p2) == 0:
+                continue
+            endif
+            
+            float l0 = (p1 - p2).length()
+            float l1 = (p0 - p2).length()
+            float l2 = (p0 - p1).length()
+            
+            ; int x0 = self.need_distort(p0)
+            ; int x1 = self.need_distort(p1)
+            ; int x2 = self.need_distort(p2)
+
+            if self.need_distort(p0) == 1 || self.need_distort(p1) == 1 || self.need_distort(p2):
+                if l0 > l1 && l0 > l2:
+                    self.seperate_triangle(p0, p1, p2)
+                elif l1 > l2:
+                    self.seperate_triangle(p1, p2, p0)
+                else:
+                    self.seperate_triangle(p2, p0, p1)
+                endif
+            else:
+                self.render_triangle(p2, p1, p0)
+            endif
         endl
     endf
 
-    def render_triangle(Triangle tri):
+    def seperate_triangle(Vec3 p0, Vec3 p1, Vec3 p2):
+        Vec3 p = (p1 + p2).mulc(0.5)
+        if (p1 - p2).length() < (p - self.pos).length() * self.mesh_size:
+            self.render_triangle(self.distort(p2), self.distort(p1), self.distort(p0))
+        else:
+            self.seperate_triangle(p, p0, p1)
+            self.seperate_triangle(p, p2, p0)
+        endif
+    endf
+
+    def visible(Vec3 p) -> (int):
+        float t
+        Vec3 gp
+        t, gp = rayPlaneIntersect(self.pos, p, self.near_gp, self.inv_axis.w)
+        Vec3 cp = self.inv_axis.transform(gp - self.near_gp) * self.canvas_scale + self.canvas_offset
+        int x = cp.x
+        int y = cp.y
+        return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT && t > 0
+    endf
+
+    def shake(float magnitude, float duration):
+        self.shake_start_time = engine.time
+        self.shake_magnitude = magnitude
+        self.shake_duration = duration
+    endf
+
+    def _shake():
+        float t = engine.time - self.shake_start_time
+        if t <= self.shake_duration:
+            float k = self.shake_magnitude * t / self.shake_duration
+            self.pos = self.pos + Vec3(rand(0-k, k), rand(0-k, k), rand(0-k, k))
+        endif
+    endf
+
+    def render_triangle(Vec3 v1, Vec3 v2, Vec3 v3):
         self.cnt = self.cnt + 3
 
         float t1, t2, t3
         Vec3 gp1, gp2, gp3
-
-        Vec3 v1 = vertices[tri.p0]
-        Vec3 v2 = vertices[tri.p1]
-        Vec3 v3 = vertices[tri.p2]
 
         t1, gp1 = rayPlaneIntersect(self.pos, v1, self.near_gp, self.inv_axis.w)
         t2, gp2 = rayPlaneIntersect(self.pos, v2, self.near_gp, self.inv_axis.w)

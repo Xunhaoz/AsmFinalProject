@@ -26,6 +26,14 @@ def cos(float x) -> (float):
     return x
 endf
 
+def rand(float x, float y) -> (float):
+    int ri
+    call Random32
+    mov ri, eax
+    float mean = (x + y) / 2
+    return (ri + 0.5) / 2147483647.5 / 2 * (y - x) + (x + y) / 2
+endf
+
 ; def round(float x) -> (int):
 ;     ffld x
 ;     fstcw fcw
