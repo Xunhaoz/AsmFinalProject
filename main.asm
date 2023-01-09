@@ -23,7 +23,7 @@ mm DWORD 15 DUP(?)
 engine DWORD 4 DUP(?)
 camera DWORD 115 DUP(?)
 keyboard DWORD 11 DUP(?)
-player DWORD 48 DUP(?)
+player DWORD 49 DUP(?)
 terrain DWORD 12008 DUP(?)
 
 
@@ -9137,7 +9137,7 @@ Engine__init PROC USES esi edi
 Engine__init ENDP
 
 
-Engine__step PROC USES esi edi
+Engine__update_time PROC USES esi edi
 	local self:DWORD, t:DWORD, reg_int_1:DWORD, reg_float_1:DWORD, reg_int_2:DWORD
 	plea [esp-12], reg_int_1
 	call get_time
@@ -9169,6 +9169,15 @@ Engine__step PROC USES esi edi
 	ffdiv t, 1148846080, reg_float_1
 	mov esi, self
 	vvmov [esi+8], reg_float_1, 1
+	end_Engine__update_time:
+	ret
+Engine__update_time ENDP
+
+
+Engine__step PROC USES esi edi
+	local self:DWORD
+	iimov [esp-12], self
+	call Engine__update_time
 	plea [esp-12], mm
 	call ModelManager__reset
 	call update
@@ -9299,7 +9308,7 @@ Vec3PD__step ENDP
 
 
 Player__init PROC USES esi edi
-	local self:DWORD, reg_Vec3_1[3]:DWORD, reg_Vec3_2[3]:DWORD, reg_Vec3_3[3]:DWORD, reg_Matrix3_1[9]:DWORD, reg_Vec3PD_1[9]:DWORD, reg_PD_1[3]:DWORD, reg_float_1:DWORD, reg_Distortion_1[7]:DWORD
+	local self:DWORD, reg_Vec3_1[3]:DWORD, reg_Vec3_2[3]:DWORD, reg_Vec3_3[3]:DWORD, reg_Matrix3_1[9]:DWORD, reg_Vec3PD_1[9]:DWORD, reg_PD_1[3]:DWORD
 	mov esi, self
 	vvmov [esi+0], 1133903872, 1
 	mov esi, self
@@ -9352,8 +9361,8 @@ Player__init PROC USES esi edi
 	mov esi, self
 	vvmov [esi+68], reg_Vec3_1, 3
 	vvmov [esp-12], 0, 1
-	vvmov [esp-16], 0, 1
-	vvmov [esp-20], -1041235968, 1
+	vvmov [esp-16], -1028521984, 1
+	vvmov [esp-20], -1005191168, 1
 	plea [esp-24], reg_Vec3_1
 	call Vec3__init
 	mov esi, self
@@ -9367,7 +9376,7 @@ Player__init PROC USES esi edi
 	vvmov [esi+92], reg_Vec3_1, 3
 	vvmov [esp-12], 0, 1
 	vvmov [esp-16], 0, 1
-	vvmov [esp-20], -1041235968, 1
+	vvmov [esp-20], -1029701632, 1
 	plea [esp-24], reg_Vec3_1
 	call Vec3__init
 	mov esi, self
@@ -9406,25 +9415,8 @@ Player__init PROC USES esi edi
 	call PD__init
 	mov esi, self
 	vvmov [esi+180], reg_PD_1, 3
-	plea [esp-12], camera
 	mov esi, self
-	ffsub [esi+20], 1176256512, reg_float_1
-	add esp, -12
-	vvmov [esp-12], reg_float_1, 1
-	vvmov [esp-16], 0, 1
-	vvmov [esp-20], 0, 1
-	plea [esp-24], reg_Vec3_1
-	call Vec3__init
-	sub esp, -12
-	add esp, -12
-	plea [esp-12], reg_Vec3_1
-	vvmov [esp-16], 1112014848, 1
-	vvmov [esp-20], 1, 1
-	plea [esp-24], reg_Distortion_1
-	call Distortion__init
-	sub esp, -12
-	plea [esp-16], reg_Distortion_1
-	call Camera__add_distortion
+	vvmov [esi+192], -1082130432, 1
 	end_Player__init:
 	ret
 Player__init ENDP
@@ -9602,8 +9594,8 @@ Player__collide ENDP
 
 
 Player__update PROC USES esi edi
-	local self:DWORD, reg_Vec3_1[3]:DWORD, reg_float_1:DWORD, reg_Distortion_1[7]:DWORD, reg_int_1:DWORD, rot[9]:DWORD, reg_Matrix3_1[9]:DWORD, reg_Matrix3_2[9]:DWORD, reg_Vec3_2[3]:DWORD, theta:DWORD, phi:DWORD, local_camera_x:DWORD, reg_float_2:DWORD
-	local local_camera_y:DWORD, local_camera_z:DWORD, camera_w[3]:DWORD, reg_Vec3_3[3]:DWORD, camera_u[3]:DWORD, camera_v[3]:DWORD, reg_int_2:DWORD
+	local self:DWORD, reg_Vec3_1[3]:DWORD, reg_float_1:DWORD, reg_Distortion_1[7]:DWORD, reg_int_1:DWORD, reg_int_2:DWORD, reg_int_3:DWORD, rot[9]:DWORD, reg_Matrix3_1[9]:DWORD, reg_Matrix3_2[9]:DWORD, reg_Vec3_2[3]:DWORD, theta:DWORD, phi:DWORD
+	local local_camera_x:DWORD, reg_float_2:DWORD, local_camera_y:DWORD, local_camera_z:DWORD, camera_w[3]:DWORD, reg_Vec3_3[3]:DWORD, camera_u[3]:DWORD, camera_v[3]:DWORD, reg_int_4:DWORD
 	lea esi, keyboard
 	iicmp [esi+20], 1
 	jne L170
@@ -9697,19 +9689,42 @@ Player__update PROC USES esi edi
 	vvmov [esi+176], 0, 1
 	L178:
 	L175:
+	iimul 0, 28, reg_int_1
+	lea esi, camera
+	add esi, reg_int_1
+	plea [esp-12], [esi+180]
+	mov esi, self
+	plea [esp-16], [esi+20]
+	plea [esp-20], reg_int_2
+	call Distortion__need
+	iicmp reg_int_2, 1
+	jne L180
+	mov esi, self
+	lea edi, engine
+	vvmov [esi+192], [edi+8], 1
+	L180:
+	L179:
+	mov esi, self
+	ffcmp [esi+192], 0
+	jna L182
+	mov esi, self
+	fimov reg_int_2, [esi+192]
+	jmp end_Player__update
+	L182:
+	L181:
 	mov esi, self
 	ffcmp [esi+4], [esi+0]
-	jnb L180
+	jnb L184
 	mov esi, self
-	fimov reg_int_1, [esi+4]
+	fimov reg_int_3, [esi+4]
 	lea esi, engine
 	ffmul 1125515264, [esi+4], reg_float_1
 	mov esi, self
 	ffadd [esi+4], reg_float_1, reg_float_1
 	mov esi, self
 	vvmov [esi+4], reg_float_1, 1
-	L180:
-	L179:
+	L184:
+	L183:
 	mov esi, self
 	plea [esp-12], [esi+180]
 	mov esi, self
@@ -9930,18 +9945,18 @@ Player__update PROC USES esi edi
 	plea [esp-16], reg_Matrix3_1
 	call Camera__set_inv_axis
 	iimov [esp-12], self
-	plea [esp-16], reg_int_2
+	plea [esp-16], reg_int_4
 	call Player__collide
-	iicmp reg_int_2, 1
-	jne L182
+	iicmp reg_int_4, 1
+	jne L186
 	plea [esp-12], camera
 	vvmov [esp-16], 1084227584, 1
 	vvmov [esp-20], 1056964608, 1
 	call Camera__shake
 	mov esi, self
 	vvmov [esi+4], 1125515264, 1
-	L182:
-	L181:
+	L186:
+	L185:
 	plea [esp-12], mm
 	mov esi, self
 	plea [esp-16], [esi+20]
@@ -9967,40 +9982,40 @@ Player__rot_x_ctl_test PROC USES esi edi
 	local self:DWORD, reg_float_1:DWORD
 	lea esi, keyboard
 	iicmp [esi+0], 1
-	jne L184
+	jne L188
 	mov esi, self
 	ffadd [esi+184], 1036831949, reg_float_1
 	mov esi, self
 	vvmov [esi+184], reg_float_1, 1
-	jmp L183
-	L184:
+	jmp L187
+	L188:
 	lea esi, keyboard
 	iicmp [esi+12], 1
-	jne L185
+	jne L189
 	mov esi, self
 	ffsub [esi+184], 1036831949, reg_float_1
 	mov esi, self
 	vvmov [esi+184], reg_float_1, 1
-	jmp L183
-	L185:
+	jmp L187
+	L189:
 	lea esi, keyboard
 	iicmp [esi+4], 1
-	jne L186
+	jne L190
 	mov esi, self
 	ffadd [esi+188], 1036831949, reg_float_1
 	mov esi, self
 	vvmov [esi+188], reg_float_1, 1
-	jmp L183
-	L186:
+	jmp L187
+	L190:
 	lea esi, keyboard
 	iicmp [esi+20], 1
-	jne L187
+	jne L191
 	mov esi, self
 	ffsub [esi+188], 1036831949, reg_float_1
 	mov esi, self
 	vvmov [esi+188], reg_float_1, 1
+	L191:
 	L187:
-	L183:
 	mov esi, self
 	printFloat [esi+184]
 	mov esi, self
@@ -10038,7 +10053,7 @@ Obstacle__collide PROC USES esi edi
 	vvmov d, reg_Vec3_1, 3
 	mov esi, self
 	iicmp [esi+12], 1
-	jne L189
+	jne L193
 	lea esi, d
 	mov edi, self
 	ffmul [esi+8], [edi+16], reg_float_1
@@ -10047,11 +10062,11 @@ Obstacle__collide PROC USES esi edi
 	vvmov b, reg_float_1, 1
 	lea esi, d
 	iicmp 0 , [esi+8]
-	jg L190
+	jg L194
 	lea esi, d
 	mov edi, self
 	ffcmp [esi+8], [edi+20]
-	jnb L190
+	jnb L194
 	lea esi, d
 	fimov reg_int_1, [esi+8]
 	lea esi, d
@@ -10059,34 +10074,34 @@ Obstacle__collide PROC USES esi edi
 	plea [esp-16], reg_float_1
 	call fabs__
 	ffcmp reg_float_1, b
-	jnb L190
+	jnb L194
 	fimov reg_int_2, reg_float_1
 	lea esi, d
 	vvmov [esp-12], [esi+4], 1
 	plea [esp-16], reg_float_1
 	call fabs__
 	ffcmp reg_float_1, b
-	jnb L190
+	jnb L194
 	fimov reg_int_3, reg_float_1
 	mov reg_int_4, 1
-	jmp L191
-	L190:
+	jmp L195
+	L194:
 	mov reg_int_4, 0
-	L191:
+	L195:
 	vpmov ret_0, reg_int_4, 1
 	jmp end_Obstacle__collide
-	jmp L188
-	L189:
+	jmp L192
+	L193:
 	mov esi, self
 	iicmp [esi+12], 2
-	jne L192
+	jne L196
 	lea esi, d
 	iicmp 0 , [esi+8]
-	jg L193
+	jg L197
 	lea esi, d
 	mov edi, self
 	ffcmp [esi+8], [edi+20]
-	jnb L193
+	jnb L197
 	lea esi, d
 	fimov reg_int_1, [esi+8]
 	lea esi, d
@@ -10095,7 +10110,7 @@ Obstacle__collide PROC USES esi edi
 	call fabs__
 	mov esi, self
 	ffcmp reg_float_1, [esi+16]
-	jnb L193
+	jnb L197
 	fimov reg_int_2, reg_float_1
 	lea esi, d
 	vvmov [esp-12], [esi+4], 1
@@ -10103,17 +10118,17 @@ Obstacle__collide PROC USES esi edi
 	call fabs__
 	mov esi, self
 	ffcmp reg_float_1, [esi+16]
-	jnb L193
+	jnb L197
 	fimov reg_int_3, reg_float_1
 	mov reg_int_4, 1
-	jmp L194
-	L193:
+	jmp L198
+	L197:
 	mov reg_int_4, 0
-	L194:
+	L198:
 	vpmov ret_0, reg_int_4, 1
 	jmp end_Obstacle__collide
+	L196:
 	L192:
-	L188:
 	end_Obstacle__collide:
 	ret
 Obstacle__collide ENDP
@@ -10123,7 +10138,7 @@ Obstacle__update PROC USES esi edi
 	local self:DWORD
 	mov esi, self
 	iicmp [esi+12], 1
-	jne L196
+	jne L200
 	plea [esp-12], mm
 	mov esi, self
 	plea [esp-16], [esi+0]
@@ -10132,11 +10147,11 @@ Obstacle__update PROC USES esi edi
 	mov esi, self
 	vvmov [esp-24], [esi+20], 1
 	call ModelManager__add_pyramid
-	jmp L195
-	L196:
+	jmp L199
+	L200:
 	mov esi, self
 	iicmp [esi+12], 2
-	jne L197
+	jne L201
 	plea [esp-12], mm
 	mov esi, self
 	plea [esp-16], [esi+0]
@@ -10145,8 +10160,8 @@ Obstacle__update PROC USES esi edi
 	mov esi, self
 	vvmov [esp-24], [esi+20], 1
 	call ModelManager__add_box
-	L197:
-	L195:
+	L201:
+	L199:
 	end_Obstacle__update:
 	ret
 Obstacle__update ENDP
@@ -10155,7 +10170,7 @@ Obstacle__update ENDP
 Terrain__init PROC USES esi edi
 	local self:DWORD
 	mov esi, self
-	vvmov [esi+0], 0, 1
+	vvmov [esi+0], 1148846080, 1
 	mov esi, self
 	vvmov [esi+4], 1148846080, 1
 	mov esi, self
@@ -10178,10 +10193,10 @@ Terrain__init ENDP
 Terrain__collide PROC USES esi edi
 	local self:DWORD, p:DWORD, ret_0:DWORD, i:DWORD, reg_int_1:DWORD, reg_int_2:DWORD
 	iimov i, 0
-	L198:
+	L202:
 	mov esi, self
 	iicmp i, [esi+12]
-	jnl L199
+	jnl L203
 	iimul i, 24, reg_int_1
 	mov esi, self
 	add esi, reg_int_1
@@ -10190,15 +10205,15 @@ Terrain__collide PROC USES esi edi
 	plea [esp-20], reg_int_2
 	call Obstacle__collide
 	iicmp reg_int_2, 1
-	jne L202
+	jne L206
 	vpmov ret_0, 1, 1
 	jmp end_Terrain__collide
-	L202:
-	L201:
-	L200:
+	L206:
+	L205:
+	L204:
 	iiadd i, 1, i
-	jmp L198
-	L199:
+	jmp L202
+	L203:
 	vpmov ret_0, 0, 1
 	jmp end_Terrain__collide
 	end_Terrain__collide:
@@ -10262,19 +10277,19 @@ Terrain__update PROC USES esi edi
 	plea [esp-24], reg_Vec3_2
 	call ModelManager__set_transform
 	iimov i, 0
-	L203:
+	L207:
 	mov esi, self
 	iicmp i, [esi+12]
-	jnl L204
+	jnl L208
 	iimul i, 24, reg_int_1
 	mov esi, self
 	add esi, reg_int_1
 	plea [esp-12], [esi+24]
 	call Obstacle__update
-	L205:
+	L209:
 	iiadd i, 1, i
-	jmp L203
-	L204:
+	jmp L207
+	L208:
 	end_Terrain__update:
 	ret
 Terrain__update ENDP
@@ -10291,7 +10306,7 @@ Terrain__generate_sub_terrain PROC USES esi edi
 	call rand
 	vvmov rid, reg_float_1, 1
 	ffcmp rid, 1005961871
-	jnb L207
+	jnb L211
 	fimov reg_int_1, rid
 	ffmul siz, 1082130432, reg_float_1
 	ffdiv reg_float_1, 1084227584, reg_float_1
@@ -10304,13 +10319,13 @@ Terrain__generate_sub_terrain PROC USES esi edi
 	vvmov [esp-24], reg_int_2, 1
 	vvmov [esp-28], 1, 1
 	call Terrain__add_obstacle
-	jmp L206
-	L207:
+	jmp L210
+	L211:
 	ffcmp rid, 1017370378
-	jnb L208
+	jnb L212
 	fimov reg_int_2, rid
 	ffcmp siz, 1097859072
-	jnb L208
+	jnb L212
 	fimov reg_int_3, siz
 	vvmov w, siz, 1
 	vvmov [esp-12], 1109393408, 1
@@ -10326,10 +10341,10 @@ Terrain__generate_sub_terrain PROC USES esi edi
 	vvmov [esp-24], reg_int_4, 1
 	vvmov [esp-28], 1, 1
 	call Terrain__add_obstacle
-	jmp L206
-	L208:
+	jmp L210
+	L212:
 	ffcmp siz, 1106247680
-	jb L209
+	jb L213
 	fimov reg_int_4, siz
 	iimov [esp-12], self
 	ffmul nsiz, 0, reg_float_1
@@ -10502,8 +10517,8 @@ Terrain__generate_sub_terrain PROC USES esi edi
 	plea [esp-16], reg_Vec3_1
 	vvmov [esp-20], nsiz, 1
 	call Terrain__generate_sub_terrain
-	L209:
-	L206:
+	L213:
+	L210:
 	end_Terrain__generate_sub_terrain:
 	ret
 Terrain__generate_sub_terrain ENDP
@@ -10529,15 +10544,15 @@ Terrain__generate_terrain PROC USES esi edi
 	ffmod y, [esi+48024], reg_float_1
 	ffsub y, reg_float_1, reg_float_1
 	vvmov y, reg_float_1, 1
-	L210:
+	L214:
 	mov esi, self
 	ffcmp [esi+0], tar_x
-	jnb L211
+	jnb L215
 	mov esi, self
 	fimov reg_int_1, [esi+0]
-	L212:
+	L216:
 	ffcmp y, tar_y
-	jnb L213
+	jnb L217
 	fimov reg_int_2, y
 	iimov [esp-12], self
 	add esp, -12
@@ -10555,38 +10570,97 @@ Terrain__generate_terrain PROC USES esi edi
 	mov esi, self
 	ffadd y, [esi+48024], reg_float_1
 	vvmov y, reg_float_1, 1
-	jmp L212
-	L213:
+	jmp L216
+	L217:
 	mov esi, self
 	ffadd [esi+0], [esi+48024], reg_float_1
 	mov esi, self
 	vvmov [esi+0], reg_float_1, 1
-	jmp L210
-	L211:
+	jmp L214
+	L215:
 	end_Terrain__generate_terrain:
 	ret
 Terrain__generate_terrain ENDP
 
 
 init PROC USES esi edi
-	plea [esp-12], engine
-	call Engine__init
+	local reg_int_1:DWORD, reg_Vec3_1[3]:DWORD, reg_Distortion_1[7]:DWORD
 	plea [esp-12], player
 	call Player__init
 	plea [esp-12], terrain
 	call Terrain__init
+	plea [esp-12], engine
+	call Engine__update_time
+	plea [esp-12], engine
+	call Engine__step
+	L218:
+	lea esi, keyboard
+	iicmp [esi+24], 0
+	jne L219
+	plea [esp-12], keyboard
+	call Keyboard__update
+	plea [esp-12], camera
+	call Camera__render
+	call display
+	jmp L218
+	L219:
+	plea [esp-12], engine
+	call Engine__update_time
+	iimul 0, 28, reg_int_1
+	vvmov [esp-12], -971227136, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	plea [esp-12], reg_Vec3_1
+	vvmov [esp-16], 1112014848, 1
+	vvmov [esp-20], 1, 1
+	plea [esp-24], reg_Distortion_1
+	call Distortion__init
+	lea esi, camera
+	add esi, reg_int_1
+	vvmov [esi+180], reg_Distortion_1, 7
 	end_init:
 	ret
 init ENDP
 
 
 update PROC USES esi edi
+	local reg_int_1:DWORD, reg_float_1:DWORD, reg_int_2:DWORD, reg_int_3:DWORD, reg_Vec3_1[3]:DWORD, reg_Distortion_1[7]:DWORD
 	plea [esp-12], player
 	call Player__update
 	plea [esp-12], terrain
 	lea esi, player
 	plea [esp-16], [esi+20]
 	call Terrain__update
+	lea esi, player
+	ffcmp [esi+192], 0
+	jna L221
+	lea esi, player
+	fimov reg_int_1, [esi+192]
+	lea esi, engine
+	lea edi, player
+	ffsub [esi+8], [edi+192], reg_float_1
+	ffcmp reg_float_1, 1077936128
+	jna L221
+	fimov reg_int_2, reg_float_1
+	iimul 0, 28, reg_int_3
+	vvmov [esp-12], -971227136, 1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Vec3_1
+	call Vec3__init
+	plea [esp-12], reg_Vec3_1
+	vvmov [esp-16], 0, 1
+	vvmov [esp-20], 0, 1
+	plea [esp-24], reg_Distortion_1
+	call Distortion__init
+	lea esi, camera
+	add esi, reg_int_3
+	vvmov [esi+180], reg_Distortion_1, 7
+	call init
+	L221:
+	L220:
 	end_update:
 	ret
 update ENDP

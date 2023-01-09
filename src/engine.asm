@@ -68,7 +68,7 @@ class Engine:
 		int self.last_t = get_time()
 	endf
 
-	def step():
+    def update_time():
         float t = get_time()
         while t - self.last_t < self.update_rate:
             t = get_time()
@@ -77,7 +77,10 @@ class Engine:
         ; printFloat self.dt
         self.last_t = t 
         self.time = t / 1000
+    endf
 
+	def step():
+        self.update_time()
         mm.reset()
         update()
         keyboard.update()

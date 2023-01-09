@@ -47,9 +47,9 @@ class Player:
         ; Matrix3 self._rot = Matrix3_identity()
         Vec3 self.scale = Vec3(3, 3, 3)
 
-        Vec3 self.camera_pos = Vec3(0, 0, -30)
+        Vec3 self.camera_pos = Vec3(0, -89, -600)
         Vec3 self.camera_vel = Vec3(0, 0, 0)
-        Vec3 self.camera_tar_pos = Vec3(0, 0, -30)
+        Vec3 self.camera_tar_pos = Vec3(0, 0, -80)
         Vec3PD self.camera_ctr = Vec3PD(Vec3(0.1, 0.1, 0.1), Vec3(5, 5, 5))
 
         Vec3 self.rot = Vec3_zero()
@@ -57,7 +57,7 @@ class Player:
         float self.rot_tar_x = 0
         PD self.rot_x_ctr = PD(5, 4)
 
-        camera.add_distortion(Distortion(Vec3(self.pos.x - 10000, 0, 0), 50, 1))
+        float self.dead_time = -1
     endf
 
     def collide() -> (int):
@@ -124,6 +124,14 @@ class Player:
 
         ; self.rot_x_ctl_test()
 
+        ; dead
+        if camera.distortions[0].need(self.pos) == 1:
+            self.dead_time = engine.time
+        endif
+
+        if self.dead_time > 0: return
+
+
         ; player
         if self.speed < self.max_speed:
             self.speed = self.speed + 150 * engine.dt
@@ -133,7 +141,6 @@ class Player:
         self.rot.x = self.rot.x + self.rot_v.x * engine.dt
         self.rot.z = 0 - self.rot.x
         Matrix3 rot = axisAngle2Matrix(Vec3(1, 0, 0), self.rot.x) * axisAngle2Matrix(Vec3(0, 1, 0), self.rot.y) * axisAngle2Matrix(Vec3(0, 0, 1), self.rot.z)
-
         self._pos = self.pos
         self.pos = self.pos + rot.u.mulc(self.speed * engine.dt) * Vec3(1, -1, 1)
 
@@ -209,7 +216,7 @@ endc
 
 class Terrain:
     def init():
-        float self.x = 0
+        float self.x = 1000
         float self.gen_x = 1000
         float self.gen_y = 500
 
@@ -286,25 +293,29 @@ class Terrain:
 endc
 
 def init():
-    engine = Engine()
     player = Player()
     terrain = Terrain()
-    ; for i in range(20):
-    ;     float h = 100
-    ;     float gap = 20
-    ;     float obs_h = rand(gap, h - 2 * gap)
-    ;     terrain.add_obstacle(Vec3(50 + i * 50, 0, 0), 10, obs_h, 2)
-    ;     terrain.add_obstacle(Vec3(50 + i * 50, 0, obs_h + gap), 10, h - obs_h - gap, 2)
-    ; endl
-    ; for i in range(500):
-    ;     terrain.add_obstacle(Vec3(50 + i * 30, 30, 0), 10, 10, 1)
-    ;     terrain.add_obstacle(Vec3(50 + i * 30, -30, 0), 10, 10, 2)
-    ; endl
     
+    engine.update_time()
+    engine.step()
+
+    while keyboard.up == 0:
+        keyboard.update()
+        camera.render()
+        display()
+    endl
+
+    engine.update_time()
+    camera.distortions[0] = Distortion(Vec3(-10000, 0, 0), 50, 1)
 endf
 
 
 def update():
     player.update()
     terrain.update(player.pos)
+
+    if player.dead_time > 0 && engine.time - player.dead_time > 3:
+        camera.distortions[0] = Distortion(Vec3(-10000, 0, 0), 0, 0)
+        init()
+    endif
 endf
